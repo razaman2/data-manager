@@ -5,24 +5,24 @@ import DataClient
 
 export default class DataManager {
     protected data: Record<string, any> = {};
-    protected IGNORED_KEYS: Array<string> = ['(?:items.(\\d+).)*createdAt'];
+    protected IGNORED_KEYS: Array<string> = ['^(?:\\w+.(?:\\d+).)*createdAt', '^(?:\\w+.(?:\\d+).)*updatedAt'];
 
-    public constructor(protected object?: DataClient) {
-        if (this.object?.getDefaultData) {
-            this.data = (typeof this.object.getDefaultData === "function") ?
-                this.object.getDefaultData() :
-                this.object.getDefaultData;
+    public constructor(protected config?: DataClient) {
+        if (this.config?.getDefaultData) {
+            this.data = (typeof this.config.getDefaultData === "function") ?
+                this.config.getDefaultData() :
+                this.config.getDefaultData;
         }
 
-        if (this.object?.data) {
-            this.data = Object.assign(this.data, (typeof this.object.data === "function") ?
-                this.object.data() :
-                this.object.data
+        if (this.config?.data) {
+            this.data = Object.assign(this.data, (typeof this.config.data === "function") ?
+                this.config.data() :
+                this.config.data
             )
         }
 
-        if (this.object?.getIgnoredKeys) {
-            this.IGNORED_KEYS = this.object.getIgnoredKeys(this.IGNORED_KEYS);
+        if (this.config?.getIgnoredKeys) {
+            this.IGNORED_KEYS = this.config.getIgnoredKeys(this.IGNORED_KEYS);
         }
     }
 
@@ -46,7 +46,7 @@ export default class DataManager {
                 const eventPath = (path ? [path, item] : [item]).join('.');
 
                 if (!memo.includes(eventPath)) {
-                    this.object?.getNotifications?.().emit?.(`localWrite.${eventPath}`, input.get(eventPath));
+                    this.config?.getNotifications?.().emit?.(`localWrite.${eventPath}`, input.get(eventPath));
                     memo.push(eventPath);
                 }
 
@@ -54,10 +54,10 @@ export default class DataManager {
             }, '');
         }
 
-        this.object?.getNotifications?.().emit?.('localWrite', data);
+        this.config?.getNotifications?.().emit?.('localWrite', data);
 
-        if (this.object?.logging) {
-            console.log(`%cSet ${this.object.name} Data:`, 'color: orange;', {
+        if (this.config?.logging) {
+            console.log(`%cSet ${this.config.name} Data:`, 'color: orange;', {
                 component: this,
                 input: data,
                 final: this.getData()
@@ -81,10 +81,10 @@ export default class DataManager {
     }
 
     public replaceData(data?: Record<string, any>) {
-        if (this.object?.getDefaultData) {
-            this.data = (typeof this.object.getDefaultData === 'function') ?
-                this.object.getDefaultData() :
-                this.object.getDefaultData;
+        if (this.config?.getDefaultData) {
+            this.data = (typeof this.config.getDefaultData === 'function') ?
+                this.config.getDefaultData() :
+                this.config.getDefaultData;
         } else {
             this.data = {};
         }

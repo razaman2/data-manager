@@ -1,9 +1,9 @@
 import DataClient from './DataClient';
 export default class DataManager {
-    protected object?: DataClient | undefined;
+    protected config?: DataClient | undefined;
     protected data: Record<string, any>;
     protected IGNORED_KEYS: Array<string>;
-    constructor(object?: DataClient | undefined);
+    constructor(config?: DataClient | undefined);
     localWrite(data: Record<string, any>): void;
     getData(path?: string | {
         path?: string;
