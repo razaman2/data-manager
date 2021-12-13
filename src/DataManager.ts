@@ -5,7 +5,7 @@ import DataClient
 
 export default class DataManager {
     protected data: Record<string, any> = {};
-    protected IGNORED_KEYS: Array<string> = ['^(?:\\w+.(?:\\d+).)*createdAt', '^(?:\\w+.(?:\\d+).)*updatedAt'];
+    protected IGNORED_KEYS: Array<string> = ['^(?:(?:\\w+.)*(?:\\d+).)*createdAt', '^(?:(?:\\w+.)*(?:\\d+).)*updatedAt'];
 
     public constructor(protected config?: DataClient) {
         if (this.config?.getDefaultData) {
