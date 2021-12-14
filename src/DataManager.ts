@@ -8,7 +8,7 @@ export default class DataManager {
     protected IGNORED_KEYS: Array<string> = ['^(?:(?:\\w+.)*(?:\\d+).)*createdAt', '^(?:(?:\\w+.)*(?:\\d+).)*updatedAt'];
 
     // added for backwards compatibility.
-    protected object: DataClient;
+    protected object?: DataClient;
 
     public constructor(protected config?: DataClient) {
         if (this.config?.getDefaultData) {
