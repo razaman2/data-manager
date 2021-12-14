@@ -87,7 +87,7 @@ describe('Data Manager', () => {
 
         const data2 = new DataManager({
             logging: false,
-            getDefaultData: {name: 'Jane Doe'}
+            getDefaultData: () => ({name: 'Jane Doe'})
         });
 
         expect(data2.getData()).toEqual({name: 'Jane Doe'});
@@ -107,7 +107,7 @@ describe('Data Manager', () => {
         const data1 = new DataManager({
             logging: false,
             data: d1,
-            getDefaultData: d2
+            getDefaultData: () => d2
         });
 
         expect(data1.getData()).toEqual({

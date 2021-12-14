@@ -3,6 +3,7 @@ export default class DataManager {
     protected config?: DataClient | undefined;
     protected data: Record<string, any>;
     protected IGNORED_KEYS: Array<string>;
+    protected object: DataClient;
     constructor(config?: DataClient | undefined);
     localWrite(data: Record<string, any>): void;
     getData(path?: string | {

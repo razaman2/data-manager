@@ -7,6 +7,9 @@ export default class DataManager {
     protected data: Record<string, any> = {};
     protected IGNORED_KEYS: Array<string> = ['^(?:(?:\\w+.)*(?:\\d+).)*createdAt', '^(?:(?:\\w+.)*(?:\\d+).)*updatedAt'];
 
+    // added for backwards compatibility.
+    protected object: DataClient;
+
     public constructor(protected config?: DataClient) {
         if (this.config?.getDefaultData) {
             this.data = (typeof this.config.getDefaultData === "function") ?
@@ -24,6 +27,9 @@ export default class DataManager {
         if (this.config?.getIgnoredKeys) {
             this.IGNORED_KEYS = this.config.getIgnoredKeys(this.IGNORED_KEYS);
         }
+
+        // added for backwards compatibility
+        this.object = this.config as DataClient;
     }
 
     public localWrite(data: Record<string, any>) {
