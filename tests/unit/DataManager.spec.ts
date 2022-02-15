@@ -1,5 +1,4 @@
-import DataManager
-    from "../../src/DataManager";
+import DataManager from "../../src/DataManager";
 
 describe('Data Manager', () => {
     it('should replace array prop data with new value', () => {
@@ -12,11 +11,11 @@ describe('Data Manager', () => {
 
         data.setData({roles: ['super', 'supervisor']});
 
-        // expect(data.getData()).toEqual({roles: ['super', 'supervisor']});
+        expect(data.getData()).toEqual({roles: ['super', 'supervisor']});
 
         data.setData({roles: ['admin']});
 
-        // expect(data.getData('roles')).toEqual(['admin']);
+        expect(data.getData('roles')).toEqual(['admin']);
     });
 
     it('should manage items', () => {

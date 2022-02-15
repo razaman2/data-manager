@@ -1,10 +1,6 @@
-import DataClient
-    from "./DataClient";
-import DataManager
-    from "./DataManager";
+import DataManager from "./DataManager";
+import DataClient from "./DataClient";
 
 export default DataManager;
 
-export {
-    DataClient
-};
+export {DataClient};
