@@ -86,14 +86,11 @@ export default class DataManager {
     }
     
     private initializeDefaultData(config?: DataClient) {
-        console.log('OBJECT INITIALIZATION:', );
         if (config?.getDefaultData) {
-            console.log('DEFAULT OBJECT:', );
             this.data = (typeof config.getDefaultData === "function") ?
                 config.getDefaultData() :
                 config.getDefaultData;
         } else {
-            console.log('NEW OBJECT:', );
             this.data = {};
         }
     }
