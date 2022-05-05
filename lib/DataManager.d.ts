@@ -15,6 +15,6 @@ export default class DataManager {
     setData(data: Record<string, any>, ...params: Array<any>): this;
     private initializeDefaultData;
     private initializeData;
-    replaceData(data?: Record<string, any>): this;
+    replaceData(data?: Record<string, any>, ...params: Array<any>): this;
 }
 //# sourceMappingURL=DataManager.d.ts.map
