@@ -1,20 +1,20 @@
 import DataClient from "./DataClient";
 export default class DataManager {
+    protected config?: DataClient;
     protected data: Record<string, any>;
     protected IGNORED_KEYS: Array<string>;
-    protected object?: DataClient;
-    protected config?: DataClient;
     constructor(config?: DataClient);
-    initialize(config?: DataClient): void;
-    setIgnoredKeys(keys: Array<string>): string[];
+    setIgnoredKeys(keys: string | Array<string>): string[];
     localWrite(data: Record<string, any>): void;
-    getData(path?: string | {
-        path?: string;
+    getData(): any;
+    getData(path: string, alternative?: any): any;
+    getData(options: {
+        path: string;
         alternative?: any;
-    }, alternative?: any): any;
-    setData(data: Record<string, any>, ...params: Array<any>): this;
-    private initializeDefaultData;
-    private initializeData;
+    }): any;
+    setData(data: Record<string, any>, ...params: Array<any>): DataManager;
+    setData(path: string, value: any, ...params: Array<any>): DataManager;
     replaceData(data?: Record<string, any>, ...params: Array<any>): this;
+    private initializeData;
 }
 //# sourceMappingURL=DataManager.d.ts.map
