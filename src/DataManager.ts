@@ -4,7 +4,7 @@ import DataClient from "./DataClient";
 export default class DataManager {
     protected config?: DataClient;
     protected data: Record<string, any> = {};
-    protected IGNORED_KEYS: Array<string> = this.setIgnoredKeys(["createdAt", "updatedAt"]);
+    protected IGNORED_KEYS: Array<string> = DataManager.getIgnoredKeys(["createdAt", "updatedAt"]);
 
     public constructor(config?: DataClient) {
         this.initializeData(config);
@@ -16,8 +16,10 @@ export default class DataManager {
         this.config = config;
     }
 
-    public setIgnoredKeys(keys: string | Array<string>) {
-        return (Array.isArray(keys) ? keys : [keys]).map((key) => `^(?:(?:\\w+.)*(?:\\d+).)*${key}`);
+    public static getIgnoredKeys(key: string): Array<string>
+    public static getIgnoredKeys(keys: Array<string>): Array<string>
+    public static getIgnoredKeys(param1: string | Array<string>) {
+        return (Array.isArray(param1) ? param1 : [param1]).map((key) => `^(?:(?:\\w+.)*(?:\\d+).)*${key}`);
     }
 
     public localWrite(data: Record<string, any>) {
@@ -48,7 +50,7 @@ export default class DataManager {
             }, "");
         }
 
-        this.config?.getNotifications?.()?.emit?.("localWrite", data);
+        this.config?.getNotifications?.().emit("localWrite", data);
 
         if (this.config?.logging) {
             console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: ${this.config.color ?? "orange"};`, {
@@ -98,6 +100,6 @@ export default class DataManager {
         const data = ((typeof config?.data === "function") ? config.data() : config?.data) ?? this.data;
         const defaultData = ((typeof config?.getDefaultData === "function") ? config.getDefaultData() : config?.getDefaultData) ?? this.data;
 
-        this.data = Object.assign(data, defaultData);
+        this.data = Object.assign(data, defaultData, ObjectManager.on(data).clone());
     }
 }

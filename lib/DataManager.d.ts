@@ -4,7 +4,8 @@ export default class DataManager {
     protected data: Record<string, any>;
     protected IGNORED_KEYS: Array<string>;
     constructor(config?: DataClient);
-    setIgnoredKeys(keys: string | Array<string>): string[];
+    static getIgnoredKeys(key: string): Array<string>;
+    static getIgnoredKeys(keys: Array<string>): Array<string>;
     localWrite(data: Record<string, any>): void;
     getData(): any;
     getData(path: string, alternative?: any): any;
