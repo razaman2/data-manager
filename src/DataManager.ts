@@ -2,18 +2,15 @@ import ObjectManager from "@razaman2/object-manager";
 import DataClient from "./DataClient";
 
 export default class DataManager {
-    protected config?: DataClient;
     protected data: Record<string, any> = {};
-    protected IGNORED_KEYS: Array<string> = DataManager.getIgnoredKeys(["createdAt", "updatedAt"]);
+    protected ignoredKeys: Array<string> = DataManager.getIgnoredKeys(["createdAt", "updatedAt"]);
 
-    public constructor(config?: DataClient) {
-        this.initializeData(config);
+    public constructor(protected config?: DataClient) {
+        this.initialize(this.config);
 
-        if (config?.getIgnoredKeys) {
-            this.IGNORED_KEYS = config.getIgnoredKeys(this.IGNORED_KEYS);
+        if (this.config?.getIgnoredKeys) {
+            this.ignoredKeys = this.config.getIgnoredKeys(this.ignoredKeys);
         }
-
-        this.config = config;
     }
 
     public static getIgnoredKeys(key: string): Array<string>
@@ -30,7 +27,7 @@ export default class DataManager {
 
         while (paths.length) {
             const path = paths.shift() as string;
-            const pathOverride = this.IGNORED_KEYS.find((item) => RegExp(item).exec(path));
+            const pathOverride = this.ignoredKeys.find((item) => RegExp(item).exec(path));
             const resolvedPath = (RegExp(`${pathOverride}`).exec(path)?.[0] ?? path);
 
             if (!memo.includes(`*.${resolvedPath}`)) {
@@ -83,11 +80,9 @@ export default class DataManager {
     }
 
     public replaceData(data?: Record<string, any>, ...params: Array<any>) {
-        Object.keys(this.data).forEach((key) => {
-            delete this.data[key];
-        });
+        this.reset(this.data);
 
-        this.initializeData(this.config);
+        this.initialize(this.config);
 
         if (data) {
             this.setData(data, ...params);
@@ -96,9 +91,19 @@ export default class DataManager {
         return this;
     }
 
-    private initializeData(config?: DataClient) {
-        const data = ((typeof config?.data === "function") ? config.data() : config?.data) ?? this.data;
-        const defaultData = ((typeof config?.getDefaultData === "function") ? config.getDefaultData() : config?.getDefaultData) ?? this.data;
+    private reset(data: Record<string, any> | Array<any>) {
+        Array.isArray(data) ? (data.length = 0) : Object.keys(data).forEach((key) => {
+            delete data[key];
+        });
+    }
+
+    private maybeFunction(param: any, ...params: Array<any>) {
+        return (typeof param === "function") ? param(...params) : param;
+    }
+
+    private initialize(config?: DataClient) {
+        const data = this.maybeFunction(config?.data) ?? this.data;
+        const defaultData = this.maybeFunction(config?.getDefaultData) ?? this.data;
 
         this.data = Object.assign(data, defaultData, ObjectManager.on(data).clone());
     }

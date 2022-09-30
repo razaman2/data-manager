@@ -1,9 +1,9 @@
 import DataClient from "./DataClient";
 export default class DataManager {
-    protected config?: DataClient;
+    protected config?: DataClient | undefined;
     protected data: Record<string, any>;
-    protected IGNORED_KEYS: Array<string>;
-    constructor(config?: DataClient);
+    protected ignoredKeys: Array<string>;
+    constructor(config?: DataClient | undefined);
     static getIgnoredKeys(key: string): Array<string>;
     static getIgnoredKeys(keys: Array<string>): Array<string>;
     localWrite(data: Record<string, any>): void;
@@ -16,6 +16,8 @@ export default class DataManager {
     setData(data: Record<string, any>, ...params: Array<any>): DataManager;
     setData(path: string, value: any, ...params: Array<any>): DataManager;
     replaceData(data?: Record<string, any>, ...params: Array<any>): this;
-    private initializeData;
+    private reset;
+    private maybeFunction;
+    private initialize;
 }
 //# sourceMappingURL=DataManager.d.ts.map
