@@ -87,17 +87,21 @@ export default class DataManager {
 
     public replaceData(data?: Record<string, any> | Array<any>, ...params: Array<any>) {
         const data1 = this.initialize(data ?? (Array.isArray(this.data) ? [] : {}));
-        const data2 = this.config?.beforeReset?.(data1) ?? data1;
+        const data2 = this.config?.beforeReset?.(data1);
 
-        if (Array.isArray(this.data)) {
-            this.data.length = 0;
+        if (data2) {
+            this.data = data2;
         } else {
-            for (const key in this.data) {
-                delete this.data[key];
+            if (Array.isArray(this.data)) {
+                this.data.length = 0;
+            } else {
+                for (const key in this.data) {
+                    delete this.data[key];
+                }
             }
         }
 
-        this.setData(data2, ...params);
+        this.setData(data2 ?? data1, ...params);
 
         return this;
     }
