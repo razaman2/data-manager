@@ -182,8 +182,29 @@ describe("Data Manager", () => {
 
         data.replaceData({name: "Jane Doe"});
 
-        expect(ref1).toBe(data.getData());
-
         expect(data.getData("name")).toBe("Jane Doe");
+
+        expect(ref1).toBe(data.getData());
+    });
+
+    it("data passed to replaceData should override default data", () => {
+        const data = new DataManager({
+            logging: false,
+            defaultData: {name: "jane doe"},
+            data: {age: 38, weight: 190},
+        });
+
+        expect(data.getData()).toEqual({
+            age: 38,
+            weight: 190,
+            name: "jane doe",
+        });
+
+        data.replaceData({age: 18});
+
+        expect(data.getData()).toEqual({
+            name: "jane doe",
+            age: 18,
+        });
     });
 });

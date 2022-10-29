@@ -1,6 +1,6 @@
 {
     "name": "@razaman2/data-manager",
-    "version": "3.0.5",
+    "version": "3.0.7",
     "description": "",
     "main": "lib/index.js",
     "types": "lib",
