@@ -3,7 +3,7 @@ import DataClient from "./DataClient";
 
 export default class DataManager {
     protected data: Record<string, any> = {};
-    protected ignoredKeys: Array<string> = DataManager.getIgnoredKeys(["createdAt", "updatedAt"]);
+    protected ignoredKeys: Array<string> = ["createdAt", "updatedAt"];
 
     public constructor(protected config?: DataClient) {
         const data1 = this.initialize(this.maybeFunction(this.config?.data) ?? this.data);
@@ -19,65 +19,68 @@ export default class DataManager {
         }
     }
 
-    public localWrite(data: Record<string, any>) {
-        const memo: Array<string> = [];
-        const input = ObjectManager.on(data);
+    public localWrite(path: string, value: any): void
+    public localWrite(data: Record<string, any>): void
+    public localWrite<T, U>(param1: T, param2?: U) {
+        const input = (typeof param1 === "string") ?
+            (() => {
+                const manager = ObjectManager.on({});
+                manager.set({path: param1 as string, value: param2});
+
+                return manager;
+            })() : ObjectManager.on(param1 as Record<string, any>);
+
         const output = ObjectManager.on(this.getData());
+        const cache: Array<string> = [];
         const paths = input.paths();
 
-        while (paths.length) {
-            const path = paths.shift() as string;
-            const pathOverride = this.ignoredKeys.find((item) => RegExp(item).exec(path));
-            const resolvedPath = (RegExp(`${pathOverride}`).exec(path)?.[0] ?? path);
+        const notifications = (this.config?.notifications ?? this.config?.getNotifications);
 
-            if (!memo.includes(`*.${resolvedPath}`)) {
-                output.set(resolvedPath, input.get(resolvedPath));
-                memo.push(`*.${resolvedPath}`);
+        while (paths.length) {
+            const path = paths.shift()?.replace(RegExp(`^(${this.ignoredKeys.join("|")}).+`), ($0, $1) => $1) as string;
+
+            if (!cache.includes(`*.${path}`)) {
+                output.set(path, input.get(path));
+                cache.push(`*.${path}`);
             }
 
-            path.split(".").reduce((path, item) => {
-                const eventPath = (path ? [path, item] : [item]).join(".");
+            path.split(".").reduce((s1: string, s2: string) => {
+                const eventPath = (s1 ? [s1, s2] : [s2]).join(".");
 
-                if (!memo.includes(eventPath)) {
-                    (this.config?.notifications ?? this.config?.getNotifications)?.()?.emit?.(`localWrite.${eventPath}`, input.get(eventPath));
-                    memo.push(eventPath);
+                if (!cache.includes(eventPath)) {
+                    notifications?.().emit(`localWrite.${eventPath}`, input.get(eventPath));
+                    cache.push(eventPath);
                 }
 
                 return eventPath;
             }, "");
         }
 
-        (this.config?.notifications ?? this.config?.getNotifications)?.().emit("localWrite", data);
+        notifications?.().emit("localWrite", input.get());
 
         if (this.config?.logging) {
             console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: ${this.config.color ?? "orange"};`, {
                 storage: this,
-                input: data,
+                input: input.get(),
                 final: this.getData(),
             });
         }
     }
 
-    public static getIgnoredKeys(key: string): Array<string>
-    public static getIgnoredKeys(keys: Array<string>): Array<string>
-    public static getIgnoredKeys(param1: string | Array<string>) {
-        return (Array.isArray(param1) ? param1 : [param1]).map((key) => `^(?:(?:\\w+.)*(?:\\d+).)*${key}`);
-    }
-
     public getData(): any
     public getData(path: string, alternative?: any): any
     public getData(options: { path: string; alternative?: any; }): any
-    public getData(param1?: any, param2?: any) {
+    public getData<T, U>(param1?: T, param2?: U) {
         const {path, alternative} = (typeof param1 === "string") ? {path: param1, alternative: param2} : param1 ?? {};
 
-        return ObjectManager.on(this.data).get(path, alternative);
+        return ObjectManager.on(this.data).get(path as string, alternative);
     }
 
-    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
     public setData(path: string, value: any, ...params: Array<any>): DataManager
-    public setData(param1: unknown, param2: any, ...params: Array<any>) {
+    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
+    public setData<T, U, V>(param1: T, param2: U, ...params: Array<V>) {
         if (typeof param1 === "string") {
-            this.localWrite(ObjectManager.on(this.data).set({path: param1, value: param2}));
+            this.localWrite(param1, param2);
         } else {
             this.localWrite(param1 as Record<string, any>);
         }

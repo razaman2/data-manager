@@ -1,5 +1,7 @@
 import DataManager from "./DataManager";
 import DataClient from "./DataClient";
 export default DataManager;
-export { DataClient };
+declare function getIgnoredKeys(key: string): Array<string>;
+declare function getIgnoredKeys(keys: Array<string>): Array<string>;
+export { DataClient, getIgnoredKeys };
 //# sourceMappingURL=index.d.ts.map
