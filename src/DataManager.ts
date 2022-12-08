@@ -3,19 +3,21 @@ import DataClient from "./DataClient";
 
 export default class DataManager {
     protected data: Record<string, any> = {};
-    protected ignoredKeys: Array<string> = ["createdAt", "updatedAt"];
+    protected ignored: { keys: Array<string> } = {keys: []};
 
     public constructor(protected config?: DataClient) {
         const data1 = this.initialize(this.maybeFunction(this.config?.data) ?? this.data);
 
         this.data = this.config?.beforeWrite?.(data1) ?? data1;
+    }
 
-        if (this.config?.getIgnoredKeys) {
-            this.ignoredKeys = this.config.getIgnoredKeys(this.ignoredKeys);
-        }
+    public getIgnoredKeys() {
+        const handler = this.config?.ignoredKeys ?? this.config?.getIgnoredKeys;
 
-        if (this.config?.ignoredKeys) {
-            this.ignoredKeys = this.config.ignoredKeys(this.ignoredKeys);
+        if (typeof handler === "function") {
+            return handler(this.ignored.keys);
+        } else {
+            return this.ignored.keys;
         }
     }
 
@@ -28,16 +30,26 @@ export default class DataManager {
                 manager.set({path: param1 as string, value: param2});
 
                 return manager;
-            })() : ObjectManager.on(param1 as Record<string, any>);
+            })() :
+            ObjectManager.on(param1 as Record<string, any>);
 
         const output = ObjectManager.on(this.getData());
         const cache: Array<string> = [];
-        const paths = input.paths();
+        const ignored = {
+            paths: input.paths(),
+            keys: this.getIgnoredKeys()
+        };
 
         const notifications = (this.config?.notifications ?? this.config?.getNotifications);
 
-        while (paths.length) {
-            const path = paths.shift()?.replace(RegExp(`^(${this.ignoredKeys.join("|")}).+`), ($0, $1) => $1) as string;
+        while (ignored.paths.length) {
+            const path = ignored.paths.shift()?.replace(
+                RegExp(`^(${ignored.keys.join("|")}).+`), ($0, $1) => {
+                    return $1.length ? $1 : $0
+                }
+            ) as string;
+
+            // ignored.paths = ignored.paths.filter((path1) => !RegExp(`${path}.*$`).test(path1));
 
             if (!cache.includes(`*.${path}`)) {
                 output.set(path, input.get(path));

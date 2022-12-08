@@ -1,6 +1,5 @@
 import EventEmitter from "@razaman2/event-emitter";
 import DataManager from "../../src/DataManager";
-import {getIgnoredKeys} from "../../src";
 
 describe("Data Manager", () => {
     it("should replace array prop data with new value", () => {
