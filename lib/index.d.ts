@@ -1,5 +1,5 @@
 import DataManager from "./DataManager";
-import DataClient from "./DataClient";
+import * as DataClient from "./DataClient";
 export default DataManager;
 declare function getIgnoredKeys(key: string): Array<string>;
 declare function getIgnoredKeys(keys: Array<string>): Array<string>;
