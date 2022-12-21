@@ -1,4 +1,4 @@
-import DataClient from "./DataClient";
+import type DataClient from "./DataClient";
 export default class DataManager {
     protected config?: DataClient | undefined;
     protected data: Record<string, any>;

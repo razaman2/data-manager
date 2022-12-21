@@ -1,5 +1,5 @@
 import ObjectManager from "@razaman2/object-manager";
-import DataClient from "./DataClient";
+import type DataClient from "./DataClient";
 
 export default class DataManager {
     protected data: Record<string, any> = {};
