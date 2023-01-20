@@ -44,9 +44,7 @@ export default class DataManager {
 
         while (ignored.paths.length) {
             const path = ignored.paths.shift()?.replace(
-                RegExp(`^(${ignored.keys.join("|")}).+`), ($0, $1) => {
-                    return $1.length ? $1 : $0
-                }
+                RegExp(`^(${ignored.keys.join("|")}).+`), ($0, $1) => $1.length ? $1 : $0
             ) as string;
 
             // ignored.paths = ignored.paths.filter((path1) => !RegExp(`${path}.*$`).test(path1));
@@ -55,6 +53,7 @@ export default class DataManager {
                 output.set(path, input.get(path));
                 cache.push(`*.${path}`);
             }
+
 
             path.split(".").reduce((s1: string, s2: string) => {
                 const eventPath = (s1 ? [s1, s2] : [s2]).join(".");
