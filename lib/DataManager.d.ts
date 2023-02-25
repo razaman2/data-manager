@@ -7,18 +7,15 @@ export default class DataManager {
     };
     constructor(config?: DataClient | undefined);
     getIgnoredKeys(): string[];
-    localWrite(path: string, value: any): void;
-    localWrite(data: Record<string, any>): void;
     getData(): any;
-    getData(path: string, alternative?: any): any;
+    getData(path: string | number, alternative?: any): any;
     getData(options: {
-        path: string;
+        path: string | number;
         alternative?: any;
     }): any;
-    setData(path: string, value: any, ...params: Array<any>): DataManager;
+    setData(value: any): DataManager;
     setData(data: Record<string, any>, ...params: Array<any>): DataManager;
+    setData(path: string | number, value: any, ...params: Array<any>): DataManager;
     replaceData(data?: Record<string, any> | Array<any>, ...params: Array<any>): this;
-    private initialize;
     private maybeFunction;
 }
-//# sourceMappingURL=DataManager.d.ts.map

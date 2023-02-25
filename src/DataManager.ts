@@ -6,13 +6,15 @@ export default class DataManager {
     protected ignored: { keys: Array<string> } = {keys: []};
 
     public constructor(protected config?: DataClient) {
-        const data1 = this.initialize(this.maybeFunction(this.config?.data) ?? this.data);
+        const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
+        const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
+        this.data = this.config?.data?.value ? this.config.data : {value: this.config?.data};
 
-        this.data = this.config?.beforeWrite?.(data1) ?? data1;
+        this.data.value = Object.assign(defaultType, defaultData, this.data.value);
     }
 
     public getIgnoredKeys() {
-        const handler = this.config?.ignoredKeys ?? this.config?.getIgnoredKeys;
+        const handler = (this.config?.ignoredKeys ?? this.config?.getIgnoredKeys);
 
         if (typeof handler === "function") {
             return handler(this.ignored.keys);
@@ -21,53 +23,58 @@ export default class DataManager {
         }
     }
 
-    public localWrite(path: string, value: any): void
-    public localWrite(data: Record<string, any>): void
-    public localWrite<T, U>(param1: T, param2?: U) {
-        const input = (typeof param1 === "string") ?
-            (() => {
-                const manager = ObjectManager.on({});
-                manager.set({path: param1 as string, value: param2});
+    public getData(): any
+    public getData(path: string | number, alternative?: any): any
+    public getData(options: { path: string | number; alternative?: any; }): any
+    public getData(param1?: string | number | { path: string | number; alternative?: any; }, param2?: any) {
+        const {path, alternative} = ((typeof param1 === "string") || (typeof param1 === "number")) ?
+            {path: param1, alternative: param2} : (param1 ?? {});
 
-                return manager;
-            })() :
-            ObjectManager.on(param1 as Record<string, any>);
+        return ObjectManager.on(this.data.value).get(path!, alternative);
+    }
 
-        const output = ObjectManager.on(this.getData());
-        const cache: Array<string> = [];
-        const ignored = {
-            paths: input.paths(),
-            keys: this.getIgnoredKeys()
-        };
-
-        const notifications = (this.config?.notifications ?? this.config?.getNotifications);
-
-        while (ignored.paths.length) {
-            const path = ignored.paths.shift()?.replace(
-                RegExp(`^(${ignored.keys.join("|")}).+`), ($0, $1) => $1.length ? $1 : $0
-            ) as string;
-
-            // ignored.paths = ignored.paths.filter((path1) => !RegExp(`${path}.*$`).test(path1));
-
-            if (!cache.includes(`*.${path}`)) {
-                output.set(path, input.get(path));
-                cache.push(`*.${path}`);
-            }
-
-
-            path.split(".").reduce((s1: string, s2: string) => {
-                const eventPath = (s1 ? [s1, s2] : [s2]).join(".");
-
-                if (!cache.includes(eventPath)) {
-                    notifications?.().emit(`localWrite.${eventPath}`, input.get(eventPath));
-                    cache.push(eventPath);
+    public setData(value: any): DataManager
+    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
+    public setData(path: string | number, value: any, ...params: Array<any>): DataManager
+    public setData(param1: any, param2?: any, ...params: Array<any>) {
+        const input = ObjectManager.on(((typeof param1 === "object") && (param1 !== null)) ? param1 : {}, {
+            paths: {
+                full: true,
+                test: (path) => {
+                    return !this.getIgnoredKeys().find((item) => RegExp(item).test(path));
                 }
+            }
+        });
 
-                return eventPath;
-            }, "");
+        if ((typeof param1 === "string") || (typeof param1 === "number")) {
+            input.set(param1, param2);
         }
 
-        notifications?.().emit("localWrite", input.get());
+        const paths = input.paths();
+        const output = ObjectManager.on(this.data.value);
+        const before = ObjectManager.on(output.clone());
+        const notifications = (this.config?.notifications ?? this.config?.getNotifications);
+
+        if (paths.length === 0) {
+            this.data.value = input.get();
+        } else {
+            paths.forEach((path) => {
+                // only set the current path if it doesn't match a upcoming similar path.
+                // eg. don't set user if the paths contain user.something.
+                if (!paths.find((item) => RegExp(`^${path}.`).test(item))) {
+                    console.log('the data:', {data: this.data.value, path, param1});
+                    // output.set(path, input.get(path))
+                    // (path ? output.set(path, input.get(path)) : output.set(input.get()))
+                    this.data.value[''] ? output.set(param1['']) : (path ? output.set(path, input.get(path)) : output.set(input.get()));
+                }
+
+                // console.log('emits:', `localWrite.${path}`)
+                notifications?.().emit(`localWrite.${path}`, input.get(path), before.get(path));
+            });
+        }
+
+        // console.log('emits:', `localWrite`)
+        notifications?.().emit("localWrite", input.get(), before.get());
 
         if (this.config?.logging) {
             console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: ${this.config.color ?? "orange"};`, {
@@ -76,58 +83,26 @@ export default class DataManager {
                 final: this.getData(),
             });
         }
-    }
-
-    public getData(): any
-    public getData(path: string, alternative?: any): any
-    public getData(options: { path: string; alternative?: any; }): any
-    public getData<T, U>(param1?: T, param2?: U) {
-        const {path, alternative} = (typeof param1 === "string") ? {path: param1, alternative: param2} : param1 ?? {};
-
-        return ObjectManager.on(this.data).get(path as string, alternative);
-    }
-
-    public setData(path: string, value: any, ...params: Array<any>): DataManager
-    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
-    public setData<T, U, V>(param1: T, param2: U, ...params: Array<V>) {
-        if (typeof param1 === "string") {
-            this.localWrite(param1, param2);
-        } else {
-            this.localWrite(param1 as Record<string, any>);
-        }
 
         return this;
     }
 
     public replaceData(data?: Record<string, any> | Array<any>, ...params: Array<any>) {
-        const data1 = this.initialize(data ?? (Array.isArray(this.data) ? [] : {}));
-        const data2 = this.config?.beforeReset?.(data1);
+        const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
+        const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
 
-        if (data2) {
-            this.data = data2;
+        if (arguments.length > 0) {
+            const replaceData = ((typeof data !== "object") ? {'': data} : data);
+
+            this.setData(Object.assign(defaultType, defaultData, this.data.value[''] ? {'': replaceData['']} : replaceData));
         } else {
-            if (Array.isArray(this.data)) {
-                this.data.length = 0;
-            } else {
-                for (const key in this.data) {
-                    delete this.data[key];
-                }
-            }
+            this.setData(Object.assign(defaultType, defaultData, this.data.value[''] ? {'': defaultData['']} : {}));
         }
-
-        this.setData(data2 ?? data1, ...params);
 
         return this;
     }
 
-    private initialize<T extends Record<string, any> | Array<any>>(data: T): T {
-        const defaultData1 = this.config?.defaultData ?? this.config?.getDefaultData;
-        const defaultData = this.maybeFunction(defaultData1) ?? {};
-
-        return Object.assign((Array.isArray(data) ? [] : {}), defaultData, data);
-    }
-
     private maybeFunction(param: any, ...params: Array<any>) {
-        return (typeof param === "function") ? param(...params) : param;
+        return ((typeof param === "function") ? param(...params) : param);
     }
 }

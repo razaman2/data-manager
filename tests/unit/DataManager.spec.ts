@@ -1,22 +1,50 @@
 import EventEmitter from "@razaman2/event-emitter";
+import ObjectManager from "@razaman2/object-manager";
 import DataManager from "../../src/DataManager";
 
 describe("Data Manager", () => {
     it("should replace array prop data with new value", () => {
         const data = new DataManager({
+            ignoredKeys: (keys: Array<string>) => keys.concat("^roles."),
             logging: false,
-            ignoredKeys(keys: Array<string>) {
-                return keys.concat(["roles"]);
-            },
         });
 
         data.setData({roles: ["super", "supervisor"]});
-
         expect(data.getData()).toEqual({roles: ["super", "supervisor"]});
 
         data.setData({roles: ["admin"]});
-
         expect(data.getData("roles")).toEqual(["admin"]);
+    });
+
+    it("should replace array prop data at root", () => {
+        const data = new DataManager({
+            ignoredKeys: (keys) => keys.concat('^\\d'),
+            logging: false,
+        });
+
+        data.setData(["super", "supervisor"]);
+        expect(data.getData()).toEqual(["super", "supervisor"]);
+
+        data.setData(["admin"]);
+        expect(data.getData()).toEqual(["admin"]);
+
+        data.setData(['a', 'b', 'c']);
+        expect(data.getData()).toEqual(["a", "b", "c"]);
+    });
+
+    it('should append and replace array items', () => {
+        const data = new DataManager({
+            logging: false,
+        });
+
+        data.setData(["super", "supervisor"]);
+        expect(data.getData()).toEqual(["super", "supervisor"]);
+
+        data.setData(["admin"]);
+        expect(data.getData()).toEqual(["admin", 'supervisor']);
+
+        data.setData(["admin", , 'tech']);
+        expect(data.getData()).toEqual(["admin", 'supervisor', 'tech']);
     });
 
     it("should manage items", () => {
@@ -62,14 +90,18 @@ describe("Data Manager", () => {
     it("should initialize object with data from the data prop", () => {
         const data1 = new DataManager({
             logging: false,
-            data: () => ({name: "John Doe"}),
+            data: {
+                value: {name: "John Doe"}
+            },
         });
 
         expect(data1.getData()).toEqual({name: "John Doe"});
 
         const data2 = new DataManager({
             logging: false,
-            data: {name: "John Doe"},
+            data: {
+                value: {name: "John Doe"}
+            },
         });
 
         expect(data2.getData()).toEqual({name: "John Doe"});
@@ -78,14 +110,16 @@ describe("Data Manager", () => {
     it("should initialize object with data from the getDefaultData prop", () => {
         const data1 = new DataManager({
             logging: false,
-            getDefaultData: () => ({name: "Jane Doe"}),
+            // getDefaultData: () => ({name: "Jane Doe"}),
+            defaultData: {name: "Jane Doe"},
         });
 
         expect(data1.getData()).toEqual({name: "Jane Doe"});
 
         const data2 = new DataManager({
             logging: false,
-            getDefaultData: () => ({name: "Jane Doe"}),
+            // getDefaultData: () => ({name: "Jane Doe"}),
+            defaultData: {name: "Jane Doe"},
         });
 
         expect(data2.getData()).toEqual({name: "Jane Doe"});
@@ -103,9 +137,9 @@ describe("Data Manager", () => {
         };
 
         const data1 = new DataManager({
+            data: {value: data},
             logging: false,
-            data: () => data,
-            getDefaultData: () => defaultData,
+            defaultData,
         });
 
         expect(data1.getData()).toEqual({
@@ -118,12 +152,12 @@ describe("Data Manager", () => {
     it("should reset object data with default data", () => {
         const data = new DataManager({
             logging: false,
-            getDefaultData: () => ({
+            defaultData: {
                 firstName: "John",
                 lastName: "Doe",
                 age: 29,
                 weight: 240,
-            }),
+            },
         });
 
         data.setData({
@@ -170,28 +204,13 @@ describe("Data Manager", () => {
         expect(data.getData("name")).toBe("Jane Doe");
     });
 
-    it("should maintain object reference after replacing data", () => {
-        const data = new DataManager({
-            logging: false,
-            getDefaultData: {name: "John Doe"},
-        });
-
-        expect(data.getData("name")).toBe("John Doe");
-
-        const ref1 = data.getData();
-
-        data.replaceData({name: "Jane Doe"});
-
-        expect(data.getData("name")).toBe("Jane Doe");
-
-        expect(ref1).toBe(data.getData());
-    });
-
     it("data passed to replaceData should override default data", () => {
         const data = new DataManager({
             logging: false,
             defaultData: {name: "jane doe"},
-            data: {age: 38, weight: 190},
+            data: {
+                value: {age: 38, weight: 190}
+            },
         });
 
         expect(data.getData()).toEqual({
@@ -283,12 +302,13 @@ describe("Data Manager", () => {
 
     it("test setting data", () => {
         const notifications = new EventEmitter();
+
         const manager = new DataManager({
-            notifications: () => notifications,
             ignoredKeys: (keys) => keys.concat("video", ".+?\.roles", "belongsTo"),
+            notifications: () => notifications,
         });
 
-        notifications.on("localWrite", (data: any) => {
+        notifications.on("localWrite", (data: object) => {
             console.log("localWrite:", data);
         });
 
@@ -706,7 +726,196 @@ describe("Data Manager", () => {
                 roles: ["driver", () => true],
             },
         });
+    });
 
-        console.log("output:", manager.getData());
+    it('set string', () => {
+        const data = new DataManager().setData('test', 'test1')
+
+        expect(data.getData('test')).toBe('test1');
+    });
+
+    it('set number', () => {
+        const data = new DataManager().setData(0, 'test1')
+
+        expect(data.getData(0)).toBe('test1');
+    });
+
+    it('should broadcast events', () => {
+        const notifications = new EventEmitter();
+
+        const manager = new DataManager({
+            notifications: () => notifications,
+        });
+
+        expect.assertions(14);
+
+        const obj: any = {
+            user: {
+                firstName: 'John',
+                lastName: 'Doe',
+                roles: ['super', 'admin', 'user'],
+                children: [
+                    {
+                        firstName: 'Foo',
+                        lastName: 'Bar',
+                        roles: ['user']
+                    },
+                ]
+            },
+        }
+
+        notifications.on('localWrite.user', (after: any) => {
+            expect(after).toEqual(obj.user);
+        })
+
+        notifications.on('localWrite.user.firstName', (after: any) => {
+            expect(after).toEqual(obj.user.firstName);
+        })
+
+        notifications.on('localWrite.user.lastName', (after: any) => {
+            expect(after).toEqual(obj.user.lastName);
+        })
+
+        notifications.on('localWrite.user.roles', (after: any) => {
+            expect(after).toEqual(obj.user.roles);
+        })
+
+        notifications.on('localWrite.user.roles.0', (after: any) => {
+            expect(after).toEqual(obj.user.roles[0]);
+        })
+
+        notifications.on('localWrite.user.roles.1', (after: any) => {
+            expect(after).toEqual(obj.user.roles[1]);
+        })
+
+        notifications.on('localWrite.user.roles.2', (after: any) => {
+            expect(after).toEqual(obj.user.roles[2]);
+        })
+
+        notifications.on('localWrite.user.children', (after: any) => {
+            expect(after).toEqual(obj.user.children);
+        })
+
+        notifications.on('localWrite.user.children.0', (after: any) => {
+            expect(after).toEqual(obj.user.children[0]);
+        })
+
+        notifications.on('localWrite.user.children.0.firstName', (after: any) => {
+            expect(after).toEqual(obj.user.children[0].firstName);
+        })
+
+        notifications.on('localWrite.user.children.0.lastName', (after: any) => {
+            expect(after).toEqual(obj.user.children[0].lastName);
+        })
+
+        notifications.on('localWrite.user.children.0.roles', (after: any) => {
+            expect(after).toEqual(obj.user.children[0].roles);
+        })
+
+        notifications.on('localWrite.user.children.0.roles.0', (after: any) => {
+            expect(after).toEqual(obj.user.children[0].roles[0]);
+        })
+
+        notifications.on('localWrite', (after: any) => {
+            expect(after).toEqual(obj);
+        })
+
+        manager.setData(obj);
+    });
+
+    it('should broadcast with data before and after', () => {
+        const notifications = new EventEmitter();
+
+        const before: any = {
+            user: {
+                firstName: 'fn1',
+                lastName: 'ln1',
+            }
+        }
+
+        const after: any = {
+            user: {
+                firstName: 'fn2',
+                lastName: 'ln2',
+                age: 1
+            },
+        }
+
+        const manager = new DataManager({
+            data: before,
+            notifications: () => notifications,
+        });
+
+        expect.assertions(8);
+
+        notifications.on('localWrite.user.firstName', (a: any, b: any) => {
+            expect(a).toEqual('fn2');
+            expect(b).toEqual('fn1');
+        });
+
+        notifications.on('localWrite.user.lastName', (a: any, b: any) => {
+            expect(a).toEqual('ln2');
+            expect(b).toEqual('ln1');
+        });
+
+        notifications.on('localWrite.user.age', (a: any, b: any) => {
+            expect(a).toEqual(1);
+            expect(b).toBeUndefined();
+        });
+
+        notifications.on('localWrite', (a: any, b: any) => {
+            expect(a).toEqual({
+                user: {
+                    firstName: 'fn2',
+                    lastName: 'ln2',
+                    age: 1
+                },
+            });
+
+            expect(b).toEqual({
+                user: {
+                    firstName: 'fn1',
+                    lastName: 'ln1',
+                }
+            });
+        });
+
+        manager.setData(after);
+    });
+
+    it('should be able to set only value without path', () => {
+        const data = new DataManager()
+
+        data.setData('test1')
+        expect(data.getData()).toBe('test1');
+
+        data.setData('test2')
+        expect(data.getData()).toBe('test2');
+    });
+
+    it.only('should set an array of objects', () => {
+        // const data = new DataManager({
+        //     data: {
+        //         value: [{name: 'zero'}]
+        //     }
+        // });
+        //
+        // data.setData([{name: 'one'}, {name: 'two'}])
+        //
+        // expect(data.getData()).toEqual([
+        //     {name: 'one'},
+        //     {name: 'two'},
+        // ]);
+
+        console.log('as array:', new DataManager({
+            data: {
+                value: [{name: 'one'}]
+            }
+        }).getData())
+        // console.log('as object:', new DataManager({
+        //     data: {
+        //         value: {}
+        //     }
+        // }).getData())
     });
 });
