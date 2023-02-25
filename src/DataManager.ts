@@ -47,7 +47,11 @@ export default class DataManager {
         });
 
         if ((typeof param1 === "string") || (typeof param1 === "number")) {
-            input.set(param1, param2);
+            if (arguments.length === 1) {
+                input.set(param1);
+            } else {
+                input.set(param1, param2);
+            }
         }
 
         const paths = input.paths();
@@ -62,18 +66,13 @@ export default class DataManager {
                 // only set the current path if it doesn't match a upcoming similar path.
                 // eg. don't set user if the paths contain user.something.
                 if (!paths.find((item) => RegExp(`^${path}.`).test(item))) {
-                    console.log('the data:', {data: this.data.value, path, param1});
-                    // output.set(path, input.get(path))
-                    // (path ? output.set(path, input.get(path)) : output.set(input.get()))
-                    this.data.value[''] ? output.set(param1['']) : (path ? output.set(path, input.get(path)) : output.set(input.get()));
+                    path ? output.set(path, input.get(path)) : output.set(input.get());
                 }
 
-                // console.log('emits:', `localWrite.${path}`)
                 notifications?.().emit(`localWrite.${path}`, input.get(path), before.get(path));
             });
         }
 
-        // console.log('emits:', `localWrite`)
         notifications?.().emit("localWrite", input.get(), before.get());
 
         if (this.config?.logging) {
@@ -92,11 +91,11 @@ export default class DataManager {
         const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
 
         if (arguments.length > 0) {
-            const replaceData = ((typeof data !== "object") ? {'': data} : data);
+            const replaceData = ((typeof data === "object") ? data : {'': data});
 
-            this.setData(Object.assign(defaultType, defaultData, this.data.value[''] ? {'': replaceData['']} : replaceData));
+            this.setData(Object.assign(defaultType, defaultData, replaceData));
         } else {
-            this.setData(Object.assign(defaultType, defaultData, this.data.value[''] ? {'': defaultData['']} : {}));
+            this.setData(Object.assign(defaultType, defaultData));
         }
 
         return this;
