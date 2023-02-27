@@ -34,10 +34,7 @@ export default class DataManager {
         return ObjectManager.on(this.data.value).get(path!, alternative);
     }
 
-    public setData(value: any): DataManager
-    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
-    public setData(path: string | number, value: any, ...params: Array<any>): DataManager
-    public setData(param1: any, param2?: any, ...params: Array<any>) {
+    protected parse(param1: any, param2: any) {
         const input = ObjectManager.on(((typeof param1 === "object") && (param1 !== null)) ? param1 : {}, {
             paths: {
                 full: true,
@@ -54,6 +51,15 @@ export default class DataManager {
                 input.set(param1, param2);
             }
         }
+
+        return input;
+    }
+
+    public setData(value: any): DataManager
+    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
+    public setData(path: string | number, value: any, ...params: Array<any>): DataManager
+    public setData(param1: any, param2?: any, ...params: Array<any>) {
+        const input = this.parse(param1, param2)
 
         const paths = input.paths();
         const output = ObjectManager.on(this.data.value);

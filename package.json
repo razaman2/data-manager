@@ -2,10 +2,11 @@
   "name": "@razaman2/data-manager",
   "version": "3.1.15",
   "description": "",
-  "main": "src/index.ts",
-  "types": "lib",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "build": "rm -rf lib && tsc -p .",
+    "prepublish": "npm run build",
+    "build": "rm -rf lib && tsc",
     "deploy": "npm publish"
   },
   "keywords": [],
