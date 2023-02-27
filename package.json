@@ -5,9 +5,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
-    "build": "rm -rf lib && tsc",
-    "deploy": "npm publish"
+    "prepublishOnly": "npm run build",
+    "build": "rm -rf lib && tsc"
   },
   "keywords": [],
   "author": "razaman2",
