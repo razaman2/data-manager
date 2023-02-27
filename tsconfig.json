@@ -1,42 +1,42 @@
-//{
-//  "compilerOptions": {
-//    "target": "ES5",
-//    "module": "CommonJS",
-//    "moduleResolution": "Node",
-//    "lib": [
-//      "ES2020",
-//      "DOM"
-//    ],
-//    "strict": true,
-//    "skipLibCheck": true,
-//    "sourceMap": true,
-//    "declaration": true,
-//    "esModuleInterop": true,
-//    "resolveJsonModule": true,
-//    "removeComments": true,
-//    "outDir": "lib"
-//  },
-//  "include": [
-//    "src"
-//  ],
-//  "exclude": [
-//    "node_modules",
-//    "tests"
-//  ]
-//}
-
 {
   "compilerOptions": {
     "target": "ES5",
     "module": "CommonJS",
-    "declaration": true,
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "outDir": "lib",
-    "strict": true,
+    "moduleResolution": "Node",
     "lib": [
       "ES2020",
       "DOM"
-    ]
-  }
+    ],
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "removeComments": true,
+    "outDir": "lib"
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "tests"
+  ]
 }
+
+//{
+//  "compilerOptions": {
+//    "target": "ES5",
+//    "module": "CommonJS",
+//    "declaration": true,
+//    "sourceMap": true,
+//    "skipLibCheck": true,
+//    "outDir": "lib",
+//    "strict": true,
+//    "lib": [
+//      "ES2020",
+//      "DOM"
+//    ]
+//  }
+//}

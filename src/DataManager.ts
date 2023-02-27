@@ -1,4 +1,4 @@
-import ObjectManager from "@razaman2/object-manager";
+import ObjectManager from "@razaman2/object-manager/lib";
 import type DataClient from "./DataClient";
 
 export default class DataManager {
@@ -72,7 +72,7 @@ export default class DataManager {
             paths.forEach((path) => {
                 // only set the current path if it doesn't match a upcoming similar path.
                 // eg. don't set user if the paths contain user.something.
-                if (!paths.find((item) => RegExp(`^${path}.`).test(item))) {
+                if (!paths.find((item) => RegExp(`^${path}\\.`).test(item))) {
                     path ? output.set(path, input.get(path)) : output.set(input.get());
                 }
 

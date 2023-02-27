@@ -1,4 +1,4 @@
-import EventEmitter from "@razaman2/event-emitter";
+import EventEmitter from "@razaman2/event-emitter/lib";
 import ObjectManager from "@razaman2/object-manager";
 import DataManager from "../../src/DataManager";
 
