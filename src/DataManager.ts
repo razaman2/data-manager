@@ -6,7 +6,6 @@ export default class DataManager {
     protected ignored: { keys: Array<string> } = {keys: []};
 
     public constructor(protected config?: DataClient) {
-        console.log('holla:', config)
         const data = this.maybeFunction(this.config?.data);
         const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
         const defaultType = (Array.isArray(data?.value ?? defaultData) ? [] : {});
