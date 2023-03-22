@@ -1,4 +1,4 @@
-import ObjectManager from "@razaman2/object-manager/lib";
+import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
 
 export default class DataManager {
