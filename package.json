@@ -1,21 +1,23 @@
 {
   "name": "@razaman2/data-manager",
-  "version": "3.1.22",
+  "version": "3.1.25",
   "description": "",
-  "main": "src/index.ts",
-  "types": "lib/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "rm -rf lib && tsc"
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc"
   },
   "keywords": [],
   "author": "razaman2",
   "license": "MIT",
   "dependencies": {
-    "@razaman2/object-manager": "^3.2.1"
+    "@razaman2/object-manager": "^3.2.7"
   },
   "devDependencies": {
-    "@razaman2/event-emitter": "^2.0.12",
+    "@razaman2/event-emitter": "^2.0.14",
     "@types/jest": "^29.4.0",
     "jest": "^29.4.2",
     "ts-jest": "^29.0.5",

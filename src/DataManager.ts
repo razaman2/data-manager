@@ -5,6 +5,15 @@ export default class DataManager {
     protected data: Record<string, any> = {};
     protected ignored: { keys: Array<string> } = {keys: []};
 
+    // public constructor(protected config?: DataClient) {
+    //     const defaultData = this.maybeFunction(this.config?.getDefaultData ?? this.config?.defaultData);
+    //     const data = this.maybeFunction(this.config?.data) ?? defaultData;
+    //     const defaultType = (Array.isArray((data.value ? data.value : data) ?? defaultData) ? [] : {});
+    //
+    //     this.data = data.value ? data : {value: data};
+    //     this.data.value = Object.assign(defaultType, defaultData, this.data.value);
+    // }
+
     public constructor(protected config?: DataClient) {
         const data = this.maybeFunction(this.config?.data);
         const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));

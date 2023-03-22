@@ -1,42 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES2016",
     "module": "CommonJS",
-    "moduleResolution": "Node",
-    "lib": [
-      "ES2020",
-      "DOM"
-    ],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "sourceMap": true,
-    "declaration": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "removeComments": true,
-    "outDir": "lib"
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "tests"
-  ]
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true
+  }
 }
-
-//{
-//  "compilerOptions": {
-//    "target": "ES5",
-//    "module": "CommonJS",
-//    "declaration": true,
-//    "sourceMap": true,
-//    "skipLibCheck": true,
-//    "outDir": "lib",
-//    "strict": true,
-//    "lib": [
-//      "ES2020",
-//      "DOM"
-//    ]
-//  }
-//}
