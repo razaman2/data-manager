@@ -2,16 +2,20 @@ import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
 
 export default class DataManager {
-    protected data: Record<string, any> = {};
+    protected state: Record<string, any> = {};
     protected ignored: { keys: Array<string> } = {keys: []};
+
+    get data() {
+        return this.state;
+    }
 
     // public constructor(protected config?: DataClient) {
     //     const defaultData = this.maybeFunction(this.config?.getDefaultData ?? this.config?.defaultData);
     //     const data = this.maybeFunction(this.config?.data) ?? defaultData;
     //     const defaultType = (Array.isArray((data.value ? data.value : data) ?? defaultData) ? [] : {});
     //
-    //     this.data = data.value ? data : {value: data};
-    //     this.data.value = Object.assign(defaultType, defaultData, this.data.value);
+    //     this.state = data.value ? data : {value: data};
+    //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     // }
 
     public constructor(protected config?: DataClient) {
@@ -19,11 +23,11 @@ export default class DataManager {
         const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
         const defaultType = (Array.isArray(data?.value ?? defaultData) ? [] : {});
 
-        this.data = data?.value ? data : {value: data};
-        this.data.value = Object.assign(defaultType, defaultData, this.data.value);
+        this.state = data?.value ? data : {value: data};
+        this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     }
 
-    public getIgnoredKeys() {
+    public getIgnoredKeys(): Array<string> {
         const handler = (this.config?.ignoredKeys ?? this.config?.getIgnoredKeys);
 
         if (typeof handler === "function") {
@@ -40,7 +44,7 @@ export default class DataManager {
         const {path, alternative} = ((typeof param1 === "string") || (typeof param1 === "number")) ?
             {path: param1, alternative: param2} : (param1 ?? {});
 
-        return ObjectManager.on(this.data.value).get(path!, alternative);
+        return ObjectManager.on(this.state.value).get(path!, alternative);
     }
 
     // protected parse(param1: any, param2: any) {
@@ -86,12 +90,12 @@ export default class DataManager {
         }
 
         const paths = input.paths();
-        const output = ObjectManager.on(this.data.value);
+        const output = ObjectManager.on(this.state.value);
         const before = ObjectManager.on(output.clone());
         const notifications = (this.config?.notifications ?? this.config?.getNotifications);
 
         if (paths.length === 0) {
-            this.data.value = input.get();
+            this.state.value = input.get();
         } else {
             paths.forEach((path) => {
                 // only set the current path if it doesn't match a upcoming similar path.
