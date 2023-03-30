@@ -92,7 +92,6 @@ export default class DataManager {
         const paths = input.paths();
         const output = ObjectManager.on(this.state.value);
         const before = ObjectManager.on(output.clone());
-        const notifications = (this.config?.notifications ?? this.config?.getNotifications);
 
         if (paths.length === 0) {
             this.state.value = input.get();
@@ -104,11 +103,11 @@ export default class DataManager {
                     path ? output.set(path, input.get(path)) : output.set(input.get());
                 }
 
-                notifications?.().emit(`localWrite.${path}`, input.get(path), before.get(path));
+                this.config?.notifications?.emit(`localWrite.${path}`, input.get(path), before.get(path));
             });
         }
 
-        notifications?.().emit("localWrite", input.get(), before.get());
+        this.config?.notifications?.emit("localWrite", input.get(), before.get());
 
         if (this.config?.logging) {
             console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: ${this.config.color ?? "orange"};`, {
