@@ -20,8 +20,8 @@ export default class DataManager {
 
     public constructor(protected config?: DataClient) {
         const data = this.maybeFunction(this.config?.data);
-        const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
-        const defaultType = (Array.isArray(data?.value ?? defaultData) ? [] : {});
+        const defaultData = this.maybeFunction((this.config?.defaultData));
+        const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
 
         this.state = data?.value ? data : {value: data};
         this.state.value = Object.assign(defaultType, defaultData, this.state.value);
