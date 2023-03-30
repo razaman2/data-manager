@@ -122,7 +122,8 @@ export default class DataManager {
 
     public replaceData(data?: Record<string, any> | Array<any>, ...params: Array<any>) {
         const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
-        const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
+        const defaultType = (Array.isArray(this.maybeFunction(this.config?.data)?.value ?? this.maybeFunction(this.config?.data) ?? defaultData) ? [] : {});
+        // const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
 
         if (arguments.length > 0) {
             const replaceData = ((typeof data === "object") ? data : {'': data});
