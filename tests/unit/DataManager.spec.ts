@@ -2,15 +2,6 @@ import EventEmitter from "@razaman2/event-emitter";
 import ObjectManager from "@razaman2/object-manager";
 import DataManager from "../../src/index";
 
-it.only("some test", () => {
-    const data = new ObjectManager();
-
-    console.log("data1:", data.get());
-    console.log("data2:", data.get({alternative: 100}));
-
-    data.get({alternative: ""});
-});
-
 describe("Data Manager", () => {
     it("should replace array prop data with new value", () => {
         const data = new DataManager({
@@ -914,5 +905,11 @@ describe("Data Manager", () => {
         //         value: {}
         //     }
         // }).getData())
+    });
+
+    it("should return alternative", () => {
+        const data = new ObjectManager();
+
+        expect(data.get({alternative: 100})).toBe(100);
     });
 });
