@@ -1,9 +1,16 @@
 import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
 
+type GetOptions = {
+    path? : string | number;
+    alternative? : any;
+}
+
 export default class DataManager {
-    protected state: Record<string, any> = {};
-    protected ignored: { keys: Array<string> } = {keys: []};
+    protected state : Record<string, any> = {};
+    protected ignored : {
+        keys : Array<string>
+    } = {keys: []};
 
     get data() {
         return this.state;
@@ -18,7 +25,7 @@ export default class DataManager {
     //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     // }
 
-    public constructor(protected config?: DataClient) {
+    public constructor(protected config? : DataClient) {
         const data = this.maybeFunction(this.config?.data);
         const defaultData = this.maybeFunction((this.config?.defaultData));
         const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
@@ -27,7 +34,7 @@ export default class DataManager {
         this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     }
 
-    public getIgnoredKeys(): Array<string> {
+    public getIgnoredKeys() : Array<string> {
         const handler = (this.config?.ignoredKeys ?? this.config?.getIgnoredKeys);
 
         if (typeof handler === "function") {
@@ -37,14 +44,19 @@ export default class DataManager {
         }
     }
 
-    public getData(): any
-    public getData(path: string | number, alternative?: any): any
-    public getData(options: { path: string | number; alternative?: any; }): any
-    public getData(param1?: string | number | { path: string | number; alternative?: any; }, param2?: any) {
-        const {path, alternative} = ((typeof param1 === "string") || (typeof param1 === "number")) ?
-            {path: param1, alternative: param2} : (param1 ?? {});
+    public getData() : any
+    public getData(path : string | number, alternative? : any) : any
+    public getData(options : GetOptions) : any
+    public getData(param1? : string | number | GetOptions, param2? : any) {
+        const {path, alternative} = ((typeof param1 === "string") || (typeof param1 === "number"))
+            ? {path: param1, alternative: param2}
+            : (param1 ?? {});
 
-        return ObjectManager.on(this.state.value).get(path!, alternative);
+        if (this.state.value[""]) {
+            return ObjectManager.on(this.state.value).get({path, alternative});
+        } else {
+            return ObjectManager.on(this.state.value).get(param1 as any, param2);
+        }
     }
 
     // protected parse(param1: any, param2: any) {
@@ -68,17 +80,17 @@ export default class DataManager {
     //     return input;
     // }
 
-    public setData(value: any): DataManager
-    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
-    public setData(path: string | number, value: any, ...params: Array<any>): DataManager
-    public setData(param1: any, param2?: any, ...params: Array<any>) {
+    public setData(value : any) : DataManager
+    public setData(data : Record<string, any>, ...params : Array<any>) : DataManager
+    public setData(path : string | number, value : any, ...params : Array<any>) : DataManager
+    public setData(param1 : any, param2? : any, ...params : Array<any>) {
         const input = ObjectManager.on(((typeof param1 === "object") && (param1 !== null)) ? param1 : {}, {
             paths: {
                 full: true,
                 test: (path) => {
                     return !this.getIgnoredKeys().find((item) => RegExp(item).test(path));
-                }
-            }
+                },
+            },
         });
 
         if ((typeof param1 === "string") || (typeof param1 === "number")) {
@@ -120,13 +132,13 @@ export default class DataManager {
         return this;
     }
 
-    public replaceData(data?: Record<string, any> | Array<any>, ...params: Array<any>) {
+    public replaceData(data? : Record<string, any> | Array<any>, ...params : Array<any>) {
         const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
         const defaultType = (Array.isArray(this.maybeFunction(this.config?.data)?.value ?? this.maybeFunction(this.config?.data) ?? defaultData) ? [] : {});
         // const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
 
         if (arguments.length > 0) {
-            const replaceData = ((typeof data === "object") ? data : {'': data});
+            const replaceData = ((typeof data === "object") ? data : {"": data});
 
             this.setData(Object.assign(defaultType, defaultData, replaceData));
         } else {
@@ -136,7 +148,7 @@ export default class DataManager {
         return this;
     }
 
-    private maybeFunction(param: any, ...params: Array<any>) {
+    private maybeFunction(param : any, ...params : Array<any>) {
         return ((typeof param === "function") ? param(...params) : param);
     }
 }

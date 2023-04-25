@@ -908,8 +908,8 @@ describe("Data Manager", () => {
     });
 
     it("should return alternative", () => {
-        const data = new ObjectManager();
+        const data = new DataManager();
 
-        expect(data.get({alternative: 100})).toBe(100);
+        expect(data.getData({alternative: 100})).toBe(100);
     });
 });
