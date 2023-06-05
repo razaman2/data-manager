@@ -25,13 +25,22 @@ export default class DataManager {
     //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     // }
 
-    public constructor(protected config? : DataClient) {
-        const data = this.maybeFunction(this.config?.data);
-        const defaultData = this.maybeFunction((this.config?.defaultData));
-        const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
+    // public constructor(protected config? : DataClient) {
+    //     console.log("hacky as fuck:");
+    //     const data = this.maybeFunction(this.config?.data);
+    //     const defaultData = this.maybeFunction((this.config?.defaultData));
+    //     const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
+    //
+    //     this.state = data?.value ? data : {value: data};
+    //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
+    // }
 
-        this.state = data?.value ? data : {value: data};
-        this.state.value = Object.assign(defaultType, defaultData, this.state.value);
+    public constructor(protected config? : DataClient) {
+        console.log("hacky as fuck:");
+
+        this.state = this.config?.data?.hasOwnProperty("value")
+            ? this.config?.data
+            : {value: this.config?.data};
     }
 
     public getIgnoredKeys() : Array<string> {
@@ -132,18 +141,26 @@ export default class DataManager {
         return this;
     }
 
+    // public replaceData(data? : Record<string, any> | Array<any>, ...params : Array<any>) {
+    //     const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
+    //     const defaultType = (Array.isArray(this.maybeFunction(this.config?.data)?.value ?? this.maybeFunction(this.config?.data) ?? defaultData) ? [] : {});
+    //     // const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
+    //
+    //     if (arguments.length > 0) {
+    //         const replaceData = ((typeof data === "object") ? data : {"": data});
+    //
+    //         this.setData(Object.assign(defaultType, defaultData, replaceData));
+    //     } else {
+    //         this.setData(Object.assign(defaultType, defaultData));
+    //     }
+    //
+    //     return this;
+    // }
+
     public replaceData(data? : Record<string, any> | Array<any>, ...params : Array<any>) {
-        const defaultData = this.maybeFunction((this.config?.defaultData ?? this.config?.getDefaultData));
-        const defaultType = (Array.isArray(this.maybeFunction(this.config?.data)?.value ?? this.maybeFunction(this.config?.data) ?? defaultData) ? [] : {});
-        // const defaultType = (Array.isArray(this.config?.data?.value ?? defaultData) ? [] : {});
+        const defaultType = Array.isArray(this.state.value) ? [] : {};
 
-        if (arguments.length > 0) {
-            const replaceData = ((typeof data === "object") ? data : {"": data});
-
-            this.setData(Object.assign(defaultType, defaultData, replaceData));
-        } else {
-            this.setData(Object.assign(defaultType, defaultData));
-        }
+        this.state.value = Object.assign(this.config?.defaultData ?? defaultType, data ?? defaultType);
 
         return this;
     }
