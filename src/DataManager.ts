@@ -2,14 +2,14 @@ import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
 
 type GetOptions = {
-    path? : string | number;
-    alternative? : any;
+    path?: string | number;
+    alternative?: any;
 }
 
 export default class DataManager {
-    protected state : Record<string, any> = {};
-    protected ignored : {
-        keys : Array<string>
+    protected state: Record<string, any> = {};
+    protected ignored: {
+        keys: Array<string>
     } = {keys: []};
 
     get data() {
@@ -25,25 +25,18 @@ export default class DataManager {
     //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     // }
 
-    // public constructor(protected config? : DataClient) {
-    //     console.log("hacky as fuck:");
-    //     const data = this.maybeFunction(this.config?.data);
-    //     const defaultData = this.maybeFunction((this.config?.defaultData));
-    //     const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
-    //
-    //     this.state = data?.value ? data : {value: data};
-    //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
-    // }
+    public constructor(protected config?: DataClient) {
+        const data = this.maybeFunction(this.config?.data);
+        const defaultData = this.maybeFunction((this.config?.defaultData));
+        const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
 
-    public constructor(protected config? : DataClient) {
-        console.log("hacky as fuck:");
+        this.state = data?.value ? data : {value: data};
+        this.state.value = Object.assign(defaultType, defaultData, this.state.value);
 
-        this.state = this.config?.data?.hasOwnProperty("value")
-            ? this.config?.data
-            : {value: this.config?.data};
+        // this.state = this.config?.data?.value ? this.config.data : {value: this.config?.data};
     }
 
-    public getIgnoredKeys() : Array<string> {
+    public getIgnoredKeys(): Array<string> {
         const handler = (this.config?.ignoredKeys ?? this.config?.getIgnoredKeys);
 
         if (typeof handler === "function") {
@@ -53,10 +46,10 @@ export default class DataManager {
         }
     }
 
-    public getData() : any
-    public getData(path : string | number, alternative? : any) : any
-    public getData(options : GetOptions) : any
-    public getData(param1? : string | number | GetOptions, param2? : any) {
+    public getData(): any
+    public getData(path: string | number, alternative?: any): any
+    public getData(options: GetOptions): any
+    public getData(param1?: string | number | GetOptions, param2?: any) {
         const {path, alternative} = ((typeof param1 === "string") || (typeof param1 === "number"))
             ? {path: param1, alternative: param2}
             : (param1 ?? {});
@@ -89,10 +82,10 @@ export default class DataManager {
     //     return input;
     // }
 
-    public setData(value : any) : DataManager
-    public setData(data : Record<string, any>, ...params : Array<any>) : DataManager
-    public setData(path : string | number, value : any, ...params : Array<any>) : DataManager
-    public setData(param1 : any, param2? : any, ...params : Array<any>) {
+    public setData(value: any): DataManager
+    public setData(data: Record<string, any>, ...params: Array<any>): DataManager
+    public setData(path: string | number, value: any, ...params: Array<any>): DataManager
+    public setData(param1: any, param2?: any, ...params: Array<any>) {
         const input = ObjectManager.on(((typeof param1 === "object") && (param1 !== null)) ? param1 : {}, {
             paths: {
                 full: true,
@@ -157,15 +150,19 @@ export default class DataManager {
     //     return this;
     // }
 
-    public replaceData(data? : Record<string, any> | Array<any>, ...params : Array<any>) {
-        const defaultType = Array.isArray(this.state.value) ? [] : {};
+    public replaceData(data?: any) {
+        if (this.state.value[""]) {
+            this.state.value = Object.assign({}, this.config?.defaultData, data ? {"": data} : {});
+        } else {
+            const defaultType = Array.isArray(this.state.value) ? [] : {};
 
-        this.state.value = Object.assign(this.config?.defaultData ?? defaultType, data ?? defaultType);
+            this.state.value = Object.assign(defaultType, this.config?.defaultData, data);
+        }
 
         return this;
     }
 
-    private maybeFunction(param : any, ...params : Array<any>) {
+    private maybeFunction(param: any, ...params: Array<any>) {
         return ((typeof param === "function") ? param(...params) : param);
     }
 }

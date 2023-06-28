@@ -1,3 +1,4 @@
+import {describe, it, expect} from "vitest";
 import EventEmitter from "@razaman2/event-emitter";
 import ObjectManager from "@razaman2/object-manager";
 import DataManager from "../../src/index";
@@ -5,7 +6,7 @@ import DataManager from "../../src/index";
 describe("Data Manager", () => {
     it("should replace array prop data with new value", () => {
         const data = new DataManager({
-            ignoredKeys: (keys : Array<string>) => keys.concat("^roles."),
+            ignoredKeys: (keys: Array<string>) => keys.concat("^roles."),
         });
 
         data.setData({roles: ["super", "supervisor"]});
@@ -296,15 +297,15 @@ describe("Data Manager", () => {
             notifications,
         });
 
-        notifications.on("localWrite", (data : object) => {
+        notifications.on("localWrite", (data: object) => {
             console.log("localWrite:", data);
         });
 
-        notifications.on("localWrite.price", (price : number) => {
+        notifications.on("localWrite.price", (price: number) => {
             console.log("localWrite.price:", price);
         });
 
-        notifications.on("localWrite.video", (video : object) => {
+        notifications.on("localWrite.video", (video: object) => {
             console.log("localWrite.video:", video);
         });
 
@@ -737,7 +738,7 @@ describe("Data Manager", () => {
 
         expect.assertions(14);
 
-        const obj : any = {
+        const obj: any = {
             user: {
                 firstName: "John",
                 lastName: "Doe",
@@ -752,59 +753,59 @@ describe("Data Manager", () => {
             },
         };
 
-        notifications.on("localWrite.user", (after : any) => {
+        notifications.on("localWrite.user", (after: any) => {
             expect(after).toEqual(obj.user);
         });
 
-        notifications.on("localWrite.user.firstName", (after : any) => {
+        notifications.on("localWrite.user.firstName", (after: any) => {
             expect(after).toEqual(obj.user.firstName);
         });
 
-        notifications.on("localWrite.user.lastName", (after : any) => {
+        notifications.on("localWrite.user.lastName", (after: any) => {
             expect(after).toEqual(obj.user.lastName);
         });
 
-        notifications.on("localWrite.user.roles", (after : any) => {
+        notifications.on("localWrite.user.roles", (after: any) => {
             expect(after).toEqual(obj.user.roles);
         });
 
-        notifications.on("localWrite.user.roles.0", (after : any) => {
+        notifications.on("localWrite.user.roles.0", (after: any) => {
             expect(after).toEqual(obj.user.roles[0]);
         });
 
-        notifications.on("localWrite.user.roles.1", (after : any) => {
+        notifications.on("localWrite.user.roles.1", (after: any) => {
             expect(after).toEqual(obj.user.roles[1]);
         });
 
-        notifications.on("localWrite.user.roles.2", (after : any) => {
+        notifications.on("localWrite.user.roles.2", (after: any) => {
             expect(after).toEqual(obj.user.roles[2]);
         });
 
-        notifications.on("localWrite.user.children", (after : any) => {
+        notifications.on("localWrite.user.children", (after: any) => {
             expect(after).toEqual(obj.user.children);
         });
 
-        notifications.on("localWrite.user.children.0", (after : any) => {
+        notifications.on("localWrite.user.children.0", (after: any) => {
             expect(after).toEqual(obj.user.children[0]);
         });
 
-        notifications.on("localWrite.user.children.0.firstName", (after : any) => {
+        notifications.on("localWrite.user.children.0.firstName", (after: any) => {
             expect(after).toEqual(obj.user.children[0].firstName);
         });
 
-        notifications.on("localWrite.user.children.0.lastName", (after : any) => {
+        notifications.on("localWrite.user.children.0.lastName", (after: any) => {
             expect(after).toEqual(obj.user.children[0].lastName);
         });
 
-        notifications.on("localWrite.user.children.0.roles", (after : any) => {
+        notifications.on("localWrite.user.children.0.roles", (after: any) => {
             expect(after).toEqual(obj.user.children[0].roles);
         });
 
-        notifications.on("localWrite.user.children.0.roles.0", (after : any) => {
+        notifications.on("localWrite.user.children.0.roles.0", (after: any) => {
             expect(after).toEqual(obj.user.children[0].roles[0]);
         });
 
-        notifications.on("localWrite", (after : any) => {
+        notifications.on("localWrite", (after: any) => {
             expect(after).toEqual(obj);
         });
 
@@ -814,14 +815,14 @@ describe("Data Manager", () => {
     it("should broadcast with data before and after", () => {
         const notifications = new EventEmitter();
 
-        const before : any = {
+        const before: any = {
             user: {
                 firstName: "fn1",
                 lastName: "ln1",
             },
         };
 
-        const after : any = {
+        const after: any = {
             user: {
                 firstName: "fn2",
                 lastName: "ln2",
@@ -836,22 +837,22 @@ describe("Data Manager", () => {
 
         expect.assertions(8);
 
-        notifications.on("localWrite.user.firstName", (a : any, b : any) => {
+        notifications.on("localWrite.user.firstName", (a: any, b: any) => {
             expect(a).toEqual("fn2");
             expect(b).toEqual("fn1");
         });
 
-        notifications.on("localWrite.user.lastName", (a : any, b : any) => {
+        notifications.on("localWrite.user.lastName", (a: any, b: any) => {
             expect(a).toEqual("ln2");
             expect(b).toEqual("ln1");
         });
 
-        notifications.on("localWrite.user.age", (a : any, b : any) => {
+        notifications.on("localWrite.user.age", (a: any, b: any) => {
             expect(a).toEqual(1);
             expect(b).toBeUndefined();
         });
 
-        notifications.on("localWrite", (a : any, b : any) => {
+        notifications.on("localWrite", (a: any, b: any) => {
             expect(a).toEqual({
                 user: {
                     firstName: "fn2",
