@@ -25,13 +25,27 @@ export default class DataManager {
     //     this.state.value = Object.assign(defaultType, defaultData, this.state.value);
     // }
 
-    public constructor(protected config?: DataClient) {
-        const data = this.maybeFunction(this.config?.data);
-        const defaultData = this.maybeFunction((this.config?.defaultData));
-        const defaultType = (Array.isArray(data?.value ?? data ?? defaultData) ? [] : {});
+    private transform(data: any) {
+        try {
+            return /Array|Object/.test(data.constructor.name)
+                ? data
+                : {"": data};
+        } catch (e) {
+            return data;
+        }
+    };
 
-        this.state = data?.value ? data : {value: data};
-        this.state.value = Object.assign(defaultType, defaultData, this.state.value);
+    public constructor(protected config?: DataClient) {
+        const data = this.transform(this.config?.data?.value ?? this.config?.data);
+        const defaultData = this.transform(this.config?.defaultData);
+        const defaultType = (Array.isArray(data ?? defaultData) ? [] : {});
+
+        // this.state = data?.value ? data : {value: data};
+        // this.state.value = Object.assign(defaultType, defaultData, this.state.value);
+
+        this.state = Object.assign(defaultType, defaultData, data);
+
+        // this.setData(Object.assign(defaultType, defaultData, data));
 
         // this.state = this.config?.data?.value ? this.config.data : {value: this.config?.data};
     }
@@ -54,10 +68,10 @@ export default class DataManager {
             ? {path: param1, alternative: param2}
             : (param1 ?? {});
 
-        if (this.state.value[""]) {
-            return ObjectManager.on(this.state.value).get({path, alternative});
+        if (this.state[""]) {
+            return ObjectManager.on(this.state).get({path, alternative});
         } else {
-            return ObjectManager.on(this.state.value).get(param1 as any, param2);
+            return ObjectManager.on(this.state).get(param1 as any, param2);
         }
     }
 
@@ -104,11 +118,11 @@ export default class DataManager {
         }
 
         const paths = input.paths();
-        const output = ObjectManager.on(this.state.value);
+        const output = ObjectManager.on(this.state);
         const before = ObjectManager.on(output.clone());
 
         if (paths.length === 0) {
-            this.state.value = input.get();
+            this.state = input.get();
         } else {
             paths.forEach((path) => {
                 // only set the current path if it doesn't match a upcoming similar path.
@@ -131,6 +145,8 @@ export default class DataManager {
             });
         }
 
+        this.config?.onWrite?.(output.get());
+
         return this;
     }
 
@@ -151,18 +167,16 @@ export default class DataManager {
     // }
 
     public replaceData(data?: any) {
-        if (this.state.value[""]) {
-            this.state.value = Object.assign({}, this.config?.defaultData, data ? {"": data} : {});
+        if (this.state[""]) {
+            this.state = Object.assign({}, this.config?.defaultData, data ? {"": data} : {});
         } else {
-            const defaultType = Array.isArray(this.state.value) ? [] : {};
+            const defaultType = Array.isArray(this.state) ? [] : {};
 
-            this.state.value = Object.assign(defaultType, this.config?.defaultData, data);
+            this.state = Object.assign(defaultType, this.config?.defaultData, data);
         }
 
-        return this;
-    }
+        this.config?.onWrite?.(this.state);
 
-    private maybeFunction(param: any, ...params: Array<any>) {
-        return ((typeof param === "function") ? param(...params) : param);
+        return this;
     }
 }

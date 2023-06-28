@@ -103,14 +103,12 @@ describe("Data Manager", () => {
 
     it("should initialize object with data from the getDefaultData prop", () => {
         const data1 = new DataManager({
-            // getDefaultData: () => ({name: "Jane Doe"}),
             defaultData: {name: "Jane Doe"},
         });
 
         expect(data1.getData()).toEqual({name: "Jane Doe"});
 
         const data2 = new DataManager({
-            // getDefaultData: () => ({name: "Jane Doe"}),
             defaultData: {name: "Jane Doe"},
         });
 
@@ -180,7 +178,7 @@ describe("Data Manager", () => {
 
     it("should maintain object reference after setting data", () => {
         const data = new DataManager({
-            getDefaultData: {name: "John Doe"},
+            defaultData: {name: "John Doe"},
         });
 
         expect(data.getData("name")).toEqual("John Doe");

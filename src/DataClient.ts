@@ -9,4 +9,5 @@ export default interface DataClient extends Record<string, any> {
     model?: DataClient;
     ignoredKeys?: (keys: Array<string>) => typeof keys;
     notifications?: EventEmitter;
+    onWrite?: (data: Datatype) => {};
 }
