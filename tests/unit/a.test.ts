@@ -1,5 +1,6 @@
 import {describe, it, expect} from "vitest";
 import DataManager from "../../src";
+import ObjectManager from "@razaman2/object-manager";
 
 describe("test", () => {
     it("one", () => {
@@ -57,6 +58,14 @@ describe("test", () => {
 
         expect(manager1.getData()).toBe(3);
     });
+});
+
+it("data-manager test", () => {
+    const data = ObjectManager.on({'': 55});
+
+    data.set('', 48)
+
+    console.log(data.get());
 });
 
 describe("real test", () => {
