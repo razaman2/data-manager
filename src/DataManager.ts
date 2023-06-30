@@ -1,4 +1,4 @@
-import ObjectManager from "../../object-manager";
+import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
 
 type GetOptions = {
@@ -7,15 +7,17 @@ type GetOptions = {
 }
 
 export default class DataManager {
+    protected state = {};
+
     protected ignored: {
         keys: Array<string>
     } = {keys: []};
 
     get data() {
-        return this.config?.data;
+        return DataManager.transform(this.config?.data ?? this.state);
     }
 
-    private transform(data: any) {
+    public static transform(data: any) {
         try {
             return /Array|Object/.test(data.constructor.name)
                 ? data
@@ -26,11 +28,10 @@ export default class DataManager {
     };
 
     public constructor(protected config?: DataClient) {
-        const data = this.transform(this.config?.data);
-        const defaultData = this.transform(this.config?.defaultData);
-        const defaultState = (Array.isArray(data ?? defaultData) ? [] : {});
+        const defaultData = DataManager.transform(this.config?.defaultData);
+        const defaultState = (Array.isArray(this.data ?? defaultData) ? [] : {});
 
-        this.setData(Object.assign(defaultState, defaultData, data));
+        this.setData(Object.assign(defaultState, defaultData, this.data));
     }
 
     public getIgnoredKeys(): Array<string> {
@@ -42,40 +43,21 @@ export default class DataManager {
     public getData(path: string | number, alternative?: any): any
     public getData(options: GetOptions): any
     public getData(param1?: string | number | GetOptions, param2?: any) {
-        const {path, alternative} = ((typeof param1 === "string") || (typeof param1 === "number"))
-            ? {path: param1, alternative: param2}
-            : (param1 ?? {});
+        const manager = ObjectManager.on(this.data);
 
-        return ObjectManager.on(this.transform(this.config?.data)).get({path, alternative});
+        if (typeof param1 === "object") {
+            return manager.get({path: param1.path, alternative: param1.alternative});
+        } else {
+            return manager.get(param1 as string | number, param2);
+        }
     }
 
-    // protected parse(param1: any, param2: any) {
-    //     const input = ObjectManager.on(((typeof param1 === "object") && (param1 !== null)) ? param1 : {}, {
-    //         paths: {
-    //             full: true,
-    //             test: (path) => {
-    //                 return !this.getIgnoredKeys().find((item) => RegExp(item).test(path));
-    //             }
-    //         }
-    //     });
-    //
-    //     if ((typeof param1 === "string") || (typeof param1 === "number")) {
-    //         if (arguments.length === 1) {
-    //             input.set(param1);
-    //         } else {
-    //             input.set(param1, param2);
-    //         }
-    //     }
-    //
-    //     return input;
-    // }
-
     public setData(value: any): this
-    public setData(data: Record<string, any>): this
+    public setData(value: Record<string, any>): this
     public setData(path: string | number, value: any): this
     public setData(param1: any, param2?: any) {
         const object = /Array|Object/.test(param1.constructor.name);
-        const data = this.transform((arguments.length === 1) ? param1 : (object ? param2 : {[param1]: param2}));
+        const data = DataManager.transform((arguments.length === 1) ? param1 : (object ? param2 : {[param1]: param2}));
 
         const input = ObjectManager.on(data, {
             paths: {
@@ -89,7 +71,7 @@ export default class DataManager {
         });
 
         const paths = input.paths();
-        const output = ObjectManager.on(this.transform(this.config?.data));
+        const output = ObjectManager.on(this.data);
         const before = ObjectManager.on(output.clone());
 
         paths.forEach((path) => {
@@ -116,11 +98,11 @@ export default class DataManager {
     }
 
     public replaceData(data?: any) {
-        for (const key in this.config?.data) {
-            delete this.config?.data?.[key];
+        for (const key in this.data) {
+            delete this.data[key];
         }
 
-        this.setData(Object.assign(this.transform(this.config?.defaultData), this.transform(data)));
+        this.setData(Object.assign(DataManager.transform(this.config?.defaultData ?? this.data), DataManager.transform(data)));
 
         return this;
     }

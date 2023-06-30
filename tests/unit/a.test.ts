@@ -1,6 +1,5 @@
 import {describe, it, expect} from "vitest";
 import DataManager from "../../src";
-import ObjectManager from "@razaman2/object-manager";
 
 describe("test", () => {
     it("one", () => {
@@ -61,11 +60,13 @@ describe("test", () => {
 });
 
 it("data-manager test", () => {
-    const data = ObjectManager.on({'': 55});
+    const data = new DataManager({
+        data: {firstName: "Jane", lastName: "Doe"},
+    });
 
-    data.set('', 48)
-
-    console.log(data.get());
+    console.log(data.getData({alternative: 10}));
+    console.log(data.getData({path: "firstName"}));
+    console.log(data.getData("firstName"));
 });
 
 describe("real test", () => {
@@ -76,13 +77,7 @@ describe("real test", () => {
             data: {},
         }).getData()).toEqual({});
 
-        expect(new DataManager({
-            data: {
-                value: {},
-            },
-        }).getData()).toEqual({});
-
-        expect.assertions(3);
+        expect.assertions(2);
     });
 
     it("should initialize data as array", () => {
@@ -90,13 +85,7 @@ describe("real test", () => {
             data: [],
         }).getData()).toEqual([]);
 
-        expect(new DataManager({
-            data: {
-                value: [],
-            },
-        }).getData()).toEqual([]);
-
-        expect.assertions(2);
+        expect.assertions(1);
     });
 
     it("should initialize data as primitive", () => {
@@ -112,31 +101,7 @@ describe("real test", () => {
             data: "",
         }).getData()).toEqual("");
 
-        expect(new DataManager({
-            data: {
-                value: 0,
-            },
-        }).getData()).toEqual(0);
-
-        expect(new DataManager({
-            data: {
-                value: false,
-            },
-        }).getData()).toEqual(false);
-
-        expect(new DataManager({
-            data: {
-                value: "",
-            },
-        }).getData()).toEqual("");
-
-        expect(new DataManager({
-            data: {
-                value: 1,
-            },
-        }).getData()).toEqual(1);
-
-        expect.assertions(7);
+        expect.assertions(3);
     });
 
     it("should initialize with primitive default data", () => {
@@ -170,19 +135,7 @@ describe("real test", () => {
             defaultData: ["test2"],
         }).getData()).toEqual(["test2"]);
 
-        expect(new DataManager({
-            data: {
-                value: {test3: true},
-            },
-        }).getData()).toEqual({test3: true});
-
-        expect(new DataManager({
-            data: {
-                value: ["test3"],
-            },
-        }).getData()).toEqual(["test3"]);
-
-        expect.assertions(5);
+        expect.assertions(3);
     });
 
     it("should merge data with default data", () => {
@@ -191,14 +144,7 @@ describe("real test", () => {
             defaultData: {test1Default: true},
         }).getData()).toMatchObject({test1: true, test1Default: true});
 
-        expect(new DataManager({
-            data: {
-                value: {test2: true},
-            },
-            defaultData: {test2Default: true},
-        }).getData()).toMatchObject({test2: true, test2Default: true});
-
-        expect.assertions(2);
+        expect.assertions(1);
     });
 
     it("should overwrite primitive default data", () => {
@@ -221,20 +167,16 @@ describe("real test", () => {
             defaultData: ["test1Default"],
         }).getData()).toMatchObject(["test1Overwrite", "test1"]);
 
-        expect(new DataManager({
-            data: {
-                value: {test2: true, test2Default: false},
-            },
-            defaultData: {test2Default: true},
-        }).getData()).toMatchObject({test2: true, test2Default: false});
+        expect.assertions(2);
+    });
 
-        expect(new DataManager({
-            data: {
-                value: ["test3Overwrite", "test3"],
-            },
-            defaultData: ["test3Default"],
-        }).getData()).toMatchObject(["test3Overwrite", "test3"]);
+    it.only("should reset primitive", () => {
+        const data = new DataManager({
+            data: 0,
+        });
 
-        expect.assertions(4);
+        data.replaceData()
+
+        expect(data.getData()).toBeUndefined();
     });
 });

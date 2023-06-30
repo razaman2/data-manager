@@ -8,7 +8,6 @@ interface DataClient extends Record<string, any> {
     model?: DataClient;
     ignoredKeys?: (keys: Array<string>) => typeof keys;
     notifications?: EventEmitter;
-    onWrite?: (data: Datatype) => {};
 }
 
 type GetOptions = {
@@ -17,11 +16,12 @@ type GetOptions = {
 };
 declare class DataManager {
     protected config?: DataClient | undefined;
+    protected state: {};
     protected ignored: {
         keys: Array<string>;
     };
     get data(): any;
-    private transform;
+    static transform(data: any): any;
     constructor(config?: DataClient | undefined);
     getIgnoredKeys(): Array<string>;
     getData(): any;
@@ -29,7 +29,7 @@ declare class DataManager {
     getData(path: string | number, alternative?: any): any;
     getData(options: GetOptions): any;
     setData(value: any): this;
-    setData(data: Record<string, any>): this;
+    setData(value: Record<string, any>): this;
     setData(path: string | number, value: any): this;
     replaceData(data?: any): this;
 }
