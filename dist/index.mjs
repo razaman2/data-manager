@@ -33,10 +33,9 @@ var DataManager = class _DataManager {
       return manager.get(param1, param2);
     }
   }
-  setData(param1, param2) {
-    var _a, _b, _c, _d;
-    const object = /Array|Object/.test(param1.constructor.name);
-    const data = _DataManager.transform(arguments.length === 1 ? param1 : object ? param2 : { [param1]: param2 });
+  setData(...params) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const data = arguments.length === 1 ? _DataManager.transform((_a = params[0].__data) != null ? _a : params[0]) : void 0;
     const input = ObjectManager.on(data, {
       paths: {
         full: true,
@@ -47,6 +46,9 @@ var DataManager = class _DataManager {
         }
       }
     });
+    if (data === void 0) {
+      input.set((_b = params[0].__data) != null ? _b : params[0], params[1]);
+    }
     const paths = input.paths();
     const output = ObjectManager.on(this.data);
     const before = ObjectManager.on(output.clone());
@@ -57,9 +59,9 @@ var DataManager = class _DataManager {
       }
       (_b2 = (_a2 = this.config) == null ? void 0 : _a2.notifications) == null ? void 0 : _b2.emit(`localWrite.${path}`, input.get(path), before.get(path));
     });
-    (_b = (_a = this.config) == null ? void 0 : _a.notifications) == null ? void 0 : _b.emit("localWrite", input.get(), before.get());
-    if ((_c = this.config) == null ? void 0 : _c.logging) {
-      console.log(`%cSet ${(_d = this.config.name) != null ? _d : this.constructor.name} Data:`, `color: orange`, {
+    (_d = (_c = this.config) == null ? void 0 : _c.notifications) == null ? void 0 : _d.emit("localWrite", input.get(), before.get());
+    if ((_e = this.config) == null ? void 0 : _e.logging) {
+      console.log(`%cSet ${(_f = this.config.name) != null ? _f : this.constructor.name} Data:`, `color: ${(_h = (_g = params[0].__config) == null ? void 0 : _g.color) != null ? _h : "orange"}`, {
         storage: this,
         input: input.get(),
         final: this.getData()
@@ -68,11 +70,15 @@ var DataManager = class _DataManager {
     return this;
   }
   replaceData(data) {
-    var _a, _b;
     for (const key in this.data) {
       delete this.data[key];
     }
-    this.setData(Object.assign(_DataManager.transform((_b = (_a = this.config) == null ? void 0 : _a.defaultData) != null ? _b : this.data), _DataManager.transform(data)));
+    this.setData({
+      __data: Object.assign(this.data, _DataManager.transform(data)),
+      __config: {
+        color: "yellow"
+      }
+    });
     return this;
   }
 };

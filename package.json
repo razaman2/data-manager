@@ -14,10 +14,10 @@
     "author": "razaman2",
     "license": "MIT",
     "dependencies": {
-        "@razaman2/object-manager": "^3.2.8"
+        "@razaman2/event-emitter": "^2.0.14",
+        "@razaman2/object-manager": "^3.2.9"
     },
     "devDependencies": {
-        "@razaman2/event-emitter": "^2.0.14",
         "tsup": "^7.1.0",
         "typescript": "^5.1.5",
         "vitest": "^0.32.2"

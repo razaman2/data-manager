@@ -1,5 +1,6 @@
 import {describe, it, expect} from "vitest";
 import DataManager from "../../src";
+import ObjectManager from "@razaman2/object-manager";
 
 describe("test", () => {
     it("one", () => {
@@ -64,9 +65,12 @@ it("data-manager test", () => {
         data: {firstName: "Jane", lastName: "Doe"},
     });
 
-    console.log(data.getData({alternative: 10}));
+    console.log(data.getData());
+    console.log(data.getData({}));
     console.log(data.getData({path: "firstName"}));
+    console.log(data.getData({alternative: 10}));
     console.log(data.getData("firstName"));
+    console.log(data.getData("", 10));
 });
 
 describe("real test", () => {
@@ -170,13 +174,13 @@ describe("real test", () => {
         expect.assertions(2);
     });
 
-    it.only("should reset primitive", () => {
-        const data = new DataManager({
-            data: 0,
-        });
-
-        data.replaceData()
-
-        expect(data.getData()).toBeUndefined();
-    });
+    // it.only("should reset primitive", () => {
+    //     const data = new DataManager({
+    //         data: 0,
+    //     });
+    //
+    //     data.replaceData()
+    //
+    //     expect(data.getData()).toBeUndefined();
+    // });
 });

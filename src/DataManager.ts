@@ -7,7 +7,7 @@ type GetOptions = {
 }
 
 export default class DataManager {
-    protected state = {};
+    protected state: any = {};
 
     protected ignored: {
         keys: Array<string>
@@ -53,11 +53,11 @@ export default class DataManager {
     }
 
     public setData(value: any): this
-    public setData(value: Record<string, any>): this
-    public setData(path: string | number, value: any): this
-    public setData(param1: any, param2?: any) {
-        const object = /Array|Object/.test(param1.constructor.name);
-        const data = DataManager.transform((arguments.length === 1) ? param1 : (object ? param2 : {[param1]: param2}));
+    public setData(path: string | number | boolean, value: any): this
+    public setData(...params: Array<any>) {
+        const data = (arguments.length === 1)
+            ? DataManager.transform(params[0].__data ?? params[0])
+            : undefined;
 
         const input = ObjectManager.on(data, {
             paths: {
@@ -69,6 +69,10 @@ export default class DataManager {
                 },
             },
         });
+
+        if (data === undefined) {
+            input.set(params[0].__data ?? params[0], params[1]);
+        }
 
         const paths = input.paths();
         const output = ObjectManager.on(this.data);
@@ -87,7 +91,7 @@ export default class DataManager {
         this.config?.notifications?.emit("localWrite", input.get(), before.get());
 
         if (this.config?.logging) {
-            console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: orange`, {
+            console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: ${params[0].__config?.color ?? "orange"}`, {
                 storage: this,
                 input: input.get(),
                 final: this.getData(),
@@ -102,7 +106,12 @@ export default class DataManager {
             delete this.data[key];
         }
 
-        this.setData(Object.assign(DataManager.transform(this.config?.defaultData ?? this.data), DataManager.transform(data)));
+        this.setData({
+            __data: Object.assign(this.data, DataManager.transform(data)),
+            __config: {
+                color: "yellow",
+            },
+        });
 
         return this;
     }

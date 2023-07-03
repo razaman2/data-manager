@@ -16,7 +16,7 @@ type GetOptions = {
 };
 declare class DataManager {
     protected config?: DataClient | undefined;
-    protected state: {};
+    protected state: any;
     protected ignored: {
         keys: Array<string>;
     };
@@ -29,8 +29,7 @@ declare class DataManager {
     getData(path: string | number, alternative?: any): any;
     getData(options: GetOptions): any;
     setData(value: any): this;
-    setData(value: Record<string, any>): this;
-    setData(path: string | number, value: any): this;
+    setData(path: string | number | boolean, value: any): this;
     replaceData(data?: any): this;
 }
 
