@@ -5,9 +5,9 @@ var DataManager = class _DataManager {
     this.config = config;
     this.state = {};
     this.ignored = { keys: [] };
-    var _a, _b;
+    var _a;
     const defaultData = _DataManager.transform((_a = this.config) == null ? void 0 : _a.defaultData);
-    const defaultState = Array.isArray((_b = this.data) != null ? _b : defaultData) ? [] : {};
+    const defaultState = Array.isArray(defaultData != null ? defaultData : this.data) ? [] : {};
     this.setData(Object.assign(defaultState, defaultData, this.data));
   }
   get data() {
@@ -34,7 +34,7 @@ var DataManager = class _DataManager {
     }
   }
   setData(...params) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
     const data = arguments.length === 1 ? _DataManager.transform((_a = params[0].__data) != null ? _a : params[0]) : void 0;
     const input = ObjectManager.on(data, {
       paths: {
@@ -51,7 +51,7 @@ var DataManager = class _DataManager {
     }
     const paths = input.paths();
     const output = ObjectManager.on(this.data);
-    const before = ObjectManager.on(output.clone());
+    const before = ObjectManager.on((_c = params[0].__clone) != null ? _c : output.clone());
     paths.forEach((path) => {
       var _a2, _b2;
       if (!paths.find((item) => RegExp(`^${path}\\.`).test(item))) {
@@ -59,9 +59,9 @@ var DataManager = class _DataManager {
       }
       (_b2 = (_a2 = this.config) == null ? void 0 : _a2.notifications) == null ? void 0 : _b2.emit(`localWrite.${path}`, input.get(path), before.get(path));
     });
-    (_d = (_c = this.config) == null ? void 0 : _c.notifications) == null ? void 0 : _d.emit("localWrite", input.get(), before.get());
-    if ((_e = this.config) == null ? void 0 : _e.logging) {
-      console.log(`%cSet ${(_f = this.config.name) != null ? _f : this.constructor.name} Data:`, `color: ${(_h = (_g = params[0].__config) == null ? void 0 : _g.color) != null ? _h : "orange"}`, {
+    (_e = (_d = this.config) == null ? void 0 : _d.notifications) == null ? void 0 : _e.emit("localWrite", input.get(), before.get());
+    if ((_f = this.config) == null ? void 0 : _f.logging) {
+      console.log(`%cSet ${(_g = this.config.name) != null ? _g : this.constructor.name} Data:`, `color: ${(_i = (_h = params[0].__config) == null ? void 0 : _h.color) != null ? _i : "orange"}`, {
         storage: this,
         input: input.get(),
         final: this.getData()
@@ -70,10 +70,12 @@ var DataManager = class _DataManager {
     return this;
   }
   replaceData(data) {
+    const clone = ObjectManager.on(this.data).clone();
     for (const key in this.data) {
       delete this.data[key];
     }
     this.setData({
+      __clone: clone,
       __data: Object.assign(this.data, _DataManager.transform(data)),
       __config: {
         color: "yellow"

@@ -29,7 +29,7 @@ export default class DataManager {
 
     public constructor(protected config?: DataClient) {
         const defaultData = DataManager.transform(this.config?.defaultData);
-        const defaultState = (Array.isArray(this.data ?? defaultData) ? [] : {});
+        const defaultState = (Array.isArray(defaultData ?? this.data) ? [] : {});
 
         this.setData(Object.assign(defaultState, defaultData, this.data));
     }
@@ -76,7 +76,7 @@ export default class DataManager {
 
         const paths = input.paths();
         const output = ObjectManager.on(this.data);
-        const before = ObjectManager.on(output.clone());
+        const before = ObjectManager.on(params[0].__clone ?? output.clone());
 
         paths.forEach((path) => {
             // only set the current path if it doesn't match a upcoming similar path.
@@ -102,11 +102,14 @@ export default class DataManager {
     }
 
     public replaceData(data?: any) {
+        const clone = ObjectManager.on(this.data).clone();
+
         for (const key in this.data) {
             delete this.data[key];
         }
 
         this.setData({
+            __clone: clone,
             __data: Object.assign(this.data, DataManager.transform(data)),
             __config: {
                 color: "yellow",
