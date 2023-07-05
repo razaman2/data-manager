@@ -1,4 +1,4 @@
-import ObjectManager from "@razaman2/object-manager";
+import ObjectManager from "../../object-manager";
 import type DataClient from "./DataClient";
 
 type GetOptions = {
@@ -7,29 +7,35 @@ type GetOptions = {
 }
 
 export default class DataManager {
-    protected state: any = {};
-
     protected ignored: {
         keys: Array<string>
     } = {keys: []};
 
     get data() {
-        return DataManager.transform(this.config?.data ?? this.state);
+        return DataManager.transform(this.config?.data ?? this.config?.defaultData);
     }
 
-    public static transform(data: any) {
+    public static transform(input: any) {
         try {
-            return /Array|Object/.test(data.constructor.name)
-                ? data
-                : {"": data};
+            return /Array|Object/.test(input.constructor.name)
+                ? input
+                : {"": input};
         } catch (e) {
-            return data;
+            return input;
+        }
+    };
+
+    protected transformed = (input: any) => {
+        try {
+            return input.hasOwnProperty("") ? input[""] : input;
+        } catch (e) {
+            return input;
         }
     };
 
     public constructor(protected config?: DataClient) {
         const defaultData = DataManager.transform(this.config?.defaultData);
-        const defaultState = (Array.isArray(defaultData ?? this.data) ? [] : {});
+        const defaultState = (Array.isArray(this.transformed(this.data)) ? [] : {});
 
         this.setData(Object.assign(defaultState, defaultData, this.data));
     }

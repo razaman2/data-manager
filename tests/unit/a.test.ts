@@ -60,127 +60,188 @@ describe("test", () => {
     });
 });
 
-it("data-manager test", () => {
-    const data = new DataManager({
-        data: {firstName: "Jane", lastName: "Doe"},
+describe("object-manager", () => {
+    describe("get data", () => {
+        it("can get primitive data", () => {
+            const data = new DataManager({
+                data: 0,
+            });
+
+            expect(data.getData()).toBe(0);
+            expect(new DataManager().getData({})).toBeUndefined();
+            expect(data.getData({path: ""})).toBe(0);
+            expect(new DataManager().getData({alternative: 1})).toBe(1);
+            expect(data.getData("")).toBe(0);
+            expect(new DataManager().getData("", 1)).toBe(1);
+
+            expect.assertions(6);
+        });
+
+        it("can get object data", () => {
+            const data = new DataManager({
+                data: {firstName: "jane", lastName: "doe"},
+            });
+
+            expect(data.getData()).toStrictEqual({firstName: "jane", lastName: "doe"});
+            expect(data.getData({})).toBeUndefined();
+            expect(data.getData({path: "firstName"})).toBe("jane");
+            expect(data.getData({alternative: 1})).toBe(1);
+            expect(data.getData("firstName")).toBe("jane");
+            expect(data.getData("", 1)).toBe(1);
+
+            expect.assertions(6);
+        });
     });
 
-    console.log(data.getData());
-    console.log(data.getData({}));
-    console.log(data.getData({path: "firstName"}));
-    console.log(data.getData({alternative: 10}));
-    console.log(data.getData("firstName"));
-    console.log(data.getData("", 10));
-});
+    describe("initialize", () => {
+        it("should initialize data as object", () => {
+            expect(new DataManager().getData()).toStrictEqual({});
 
-describe("real test", () => {
-    it("should initialize data as object", () => {
-        expect(new DataManager().getData()).toEqual({});
+            expect(new DataManager({
+                data: {},
+            }).getData()).toStrictEqual({});
 
-        expect(new DataManager({
-            data: {},
-        }).getData()).toEqual({});
+            expect(new DataManager({
+                defaultData: {},
+            }).getData()).toStrictEqual({});
 
-        expect.assertions(2);
+            expect.assertions(3);
+        });
+
+        it("should initialize data as array", () => {
+            expect(new DataManager({
+                data: [],
+            }).getData()).toStrictEqual([]);
+
+            expect(new DataManager({
+                defaultData: [],
+            }).getData()).toStrictEqual([]);
+
+            expect.assertions(2);
+        });
+
+        it("should initialize data as primitive", () => {
+            expect(new DataManager({
+                data: 0,
+            }).getData()).toBe(0);
+
+            expect(new DataManager({
+                data: false,
+            }).getData()).toBe(false);
+
+            expect(new DataManager({
+                data: "",
+            }).getData()).toBe("");
+
+            expect.assertions(3);
+        });
+
+        it("should initialize with primitive default data", () => {
+            expect(new DataManager({
+                defaultData: 0,
+            }).getData()).toBe(0);
+
+            expect(new DataManager({
+                defaultData: false,
+            }).getData()).toBe(false);
+
+            expect(new DataManager({
+                defaultData: "",
+            }).getData()).toBe("");
+
+            expect.assertions(3);
+        });
+
+        it("should initialize with default data", () => {
+            expect(new DataManager({
+                defaultData: {test1: true},
+            }).getData()).toStrictEqual({test1: true});
+
+            expect(new DataManager({
+                data: {},
+                defaultData: {test2: true},
+            }).getData()).toStrictEqual({test2: true});
+
+            expect(new DataManager({
+                data: [],
+                defaultData: ["test2"],
+            }).getData()).toStrictEqual(["test2"]);
+
+            expect.assertions(3);
+        });
+
+        it("should merge data with default data", () => {
+            expect(new DataManager({
+                data: {test1: true},
+                defaultData: {test1Default: true},
+            }).getData()).toStrictEqual({test1: true, test1Default: true});
+
+            expect(new DataManager({
+                data: ["test1"],
+                defaultData: [, "test1Default"],
+            }).getData()).toStrictEqual(["test1", "test1Default"]);
+
+            expect.assertions(2);
+        });
+
+        it("should overwrite primitive default data", () => {
+            expect(new DataManager({
+                data: 1,
+                defaultData: 0,
+            }).getData()).toBe(1);
+
+            expect(new DataManager({
+                data: true,
+                defaultData: false,
+            }).getData()).toBe(true);
+
+            expect(new DataManager({
+                data: "test1",
+                defaultData: "",
+            }).getData()).toBe("test1");
+
+            expect.assertions(3);
+        });
+
+        it("should overwrite default data with data", () => {
+            expect(new DataManager({
+                data: {test1: true, test1Default: false},
+                defaultData: {test1Default: true},
+            }).getData()).toStrictEqual({test1: true, test1Default: false});
+
+            expect(new DataManager({
+                data: ["test1Overwrite", "test1"],
+                defaultData: ["test1Default"],
+            }).getData()).toStrictEqual(["test1Overwrite", "test1"]);
+
+            expect.assertions(2);
+        });
+
+        // it.only("should reset primitive", () => {
+        //     const data = new DataManager({
+        //         data: 0,
+        //     });
+        //
+        //     data.replaceData()
+        //
+        //     expect(data.getData()).toBeUndefined();
+        // });
     });
 
-    it("should initialize data as array", () => {
-        expect(new DataManager({
-            data: [],
-        }).getData()).toEqual([]);
+    describe("set data", () => {
+        it("can set data", () => {
+            const data = new DataManager({
+                data: {},
+            });
 
-        expect.assertions(1);
+            data.setData({firstName: "jane"});
+            data.setData({
+                address: {
+                    address1: "123 main street",
+                },
+            });
+
+            console.log(data.getData());
+        });
     });
-
-    it("should initialize data as primitive", () => {
-        expect(new DataManager({
-            data: 0,
-        }).getData()).toEqual(0);
-
-        expect(new DataManager({
-            data: false,
-        }).getData()).toEqual(false);
-
-        expect(new DataManager({
-            data: "",
-        }).getData()).toEqual("");
-
-        expect.assertions(3);
-    });
-
-    it("should initialize with primitive default data", () => {
-        expect(new DataManager({
-            defaultData: 0,
-        }).getData()).toEqual(0);
-
-        expect(new DataManager({
-            defaultData: false,
-        }).getData()).toEqual(false);
-
-        expect(new DataManager({
-            defaultData: "",
-        }).getData()).toEqual("");
-
-        expect.assertions(3);
-    });
-
-    it("should initialize with default data", () => {
-        expect(new DataManager({
-            defaultData: {test1: true},
-        }).getData()).toEqual({test1: true});
-
-        expect(new DataManager({
-            data: {},
-            defaultData: {test2: true},
-        }).getData()).toEqual({test2: true});
-
-        expect(new DataManager({
-            data: [],
-            defaultData: ["test2"],
-        }).getData()).toEqual(["test2"]);
-
-        expect.assertions(3);
-    });
-
-    it("should merge data with default data", () => {
-        expect(new DataManager({
-            data: {test1: true},
-            defaultData: {test1Default: true},
-        }).getData()).toMatchObject({test1: true, test1Default: true});
-
-        expect.assertions(1);
-    });
-
-    it("should overwrite primitive default data", () => {
-        expect(new DataManager({
-            data: 1,
-            defaultData: 0,
-        }).getData()).toEqual(1);
-
-        expect.assertions(1);
-    });
-
-    it("should overwrite default data with data", () => {
-        expect(new DataManager({
-            data: {test1: true, test1Default: false},
-            defaultData: {test1Default: true},
-        }).getData()).toMatchObject({test1: true, test1Default: false});
-
-        expect(new DataManager({
-            data: ["test1Overwrite", "test1"],
-            defaultData: ["test1Default"],
-        }).getData()).toMatchObject(["test1Overwrite", "test1"]);
-
-        expect.assertions(2);
-    });
-
-    // it.only("should reset primitive", () => {
-    //     const data = new DataManager({
-    //         data: 0,
-    //     });
-    //
-    //     data.replaceData()
-    //
-    //     expect(data.getData()).toBeUndefined();
-    // });
 });

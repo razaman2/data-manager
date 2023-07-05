@@ -39,22 +39,28 @@ var import_object_manager = __toESM(require("@razaman2/object-manager"));
 var DataManager = class _DataManager {
   constructor(config) {
     this.config = config;
-    this.state = {};
     this.ignored = { keys: [] };
+    this.transformed = (input) => {
+      try {
+        return input.hasOwnProperty("") ? input[""] : input;
+      } catch (e) {
+        return input;
+      }
+    };
     var _a;
     const defaultData = _DataManager.transform((_a = this.config) == null ? void 0 : _a.defaultData);
-    const defaultState = Array.isArray(defaultData != null ? defaultData : this.data) ? [] : {};
+    const defaultState = Array.isArray(this.transformed(this.data)) ? [] : {};
     this.setData(Object.assign(defaultState, defaultData, this.data));
   }
   get data() {
-    var _a, _b;
-    return _DataManager.transform((_b = (_a = this.config) == null ? void 0 : _a.data) != null ? _b : this.state);
+    var _a, _b, _c;
+    return _DataManager.transform((_c = (_a = this.config) == null ? void 0 : _a.data) != null ? _c : (_b = this.config) == null ? void 0 : _b.defaultData);
   }
-  static transform(data) {
+  static transform(input) {
     try {
-      return /Array|Object/.test(data.constructor.name) ? data : { "": data };
+      return /Array|Object/.test(input.constructor.name) ? input : { "": input };
     } catch (e) {
-      return data;
+      return input;
     }
   }
   getIgnoredKeys() {

@@ -16,12 +16,12 @@ type GetOptions = {
 };
 declare class DataManager {
     protected config?: DataClient | undefined;
-    protected state: any;
     protected ignored: {
         keys: Array<string>;
     };
     get data(): any;
-    static transform(data: any): any;
+    static transform(input: any): any;
+    protected transformed: (input: any) => any;
     constructor(config?: DataClient | undefined);
     getIgnoredKeys(): Array<string>;
     getData(): any;

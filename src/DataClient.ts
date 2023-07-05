@@ -1,4 +1,4 @@
-import EventEmitter from "@razaman2/event-emitter";
+import EventEmitter from "../../event-emitter";
 
 type Datatype = any;
 
