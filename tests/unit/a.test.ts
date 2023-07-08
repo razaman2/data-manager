@@ -1,5 +1,5 @@
 import {describe, it, expect} from "vitest";
-import DataManager from "../../src";
+import DataManager from "../../dist";
 import ObjectManager from "@razaman2/object-manager";
 
 describe("test", () => {
@@ -57,6 +57,29 @@ describe("test", () => {
         manager1.replaceData(3);
 
         expect(manager1.getData()).toBe(3);
+    });
+
+    it.only("test", () => {
+        const data = new DataManager({
+            logging: true,
+            defaultData: {firstName: "jane", lastName: "doe"},
+            data: {
+                id: 123,
+                roles: ["super", "admin"],
+                address: {
+                    address1: "123 Main St",
+                    address2: "Apt 1",
+                    coords: {
+                        lat: 100,
+                        lng: 200,
+                    },
+                }
+            },
+        });
+
+        data.replaceData({roles: ["sales", "tech"]}, ["roles"]);
+
+        console.log(data.getData());
     });
 });
 
@@ -217,14 +240,17 @@ describe("object-manager", () => {
             expect.assertions(2);
         });
 
-        // it.only("should reset primitive", () => {
+        // it("should reset primitive", () => {
         //     const data = new DataManager({
-        //         data: 0,
+        //         // defaultData: {'': true},
+        //         data: {'': false},
         //     });
         //
-        //     data.replaceData()
+        //     data.replaceData();
         //
-        //     expect(data.getData()).toBeUndefined();
+        //     console.log("log2:", data.getData());
+        //
+        //     // expect(data.getData()).toBeUndefined();
         // });
     });
 

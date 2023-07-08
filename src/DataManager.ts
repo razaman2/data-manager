@@ -1,5 +1,6 @@
 import ObjectManager from "../../object-manager";
 import type DataClient from "./DataClient";
+import {version} from "../package.json";
 
 type GetOptions = {
     path?: string | number;
@@ -7,12 +8,14 @@ type GetOptions = {
 }
 
 export default class DataManager {
+    private version = version;
+
     protected ignored: {
         keys: Array<string>
     } = {keys: []};
 
     get data() {
-        return DataManager.transform(this.config?.data ?? this.config?.defaultData);
+        return DataManager.transform(this.config?.data ?? {});
     }
 
     public static transform(input: any) {
@@ -35,13 +38,16 @@ export default class DataManager {
 
     public constructor(protected config?: DataClient) {
         const defaultData = DataManager.transform(this.config?.defaultData);
-        const defaultState = (Array.isArray(this.transformed(this.data)) ? [] : {});
+        const defaultType = (Array.isArray(this.transformed(this.data)) ? [] : {});
 
-        this.setData(Object.assign(defaultState, defaultData, this.data));
+        this.setData(Object.assign(defaultType, defaultData, this.data));
     }
 
     public getIgnoredKeys(): Array<string> {
-        return this.config?.ignoredKeys?.(this.ignored.keys) ?? this.ignored.keys;
+        return (
+            this.config?.ignoredKeys?.(this.ignored.keys)
+            ?? this.ignored.keys
+        );
     }
 
     public getData(): any
@@ -69,9 +75,12 @@ export default class DataManager {
             paths: {
                 full: true,
                 test: (path) => {
-                    return !this.getIgnoredKeys().find((item) => {
-                        return RegExp(item).test(path);
-                    });
+                    return !(
+                        this.config?.ignoredPaths?.(path)
+                        || this.getIgnoredKeys().find((ignored) => {
+                            return RegExp(ignored).test(path);
+                        })
+                    );
                 },
             },
         });
@@ -107,19 +116,30 @@ export default class DataManager {
         return this;
     }
 
-    public replaceData(data?: any) {
-        const clone = ObjectManager.on(this.data).clone();
+    public replaceData(add?: any, remove?: Array<string>) {
+        const data = ObjectManager.on(this.data, {paths: {full: true}});
+        const paths = remove ?? data.paths();
+        const clone = data.clone();
 
-        for (const key in this.data) {
-            delete this.data[key];
+        while (paths.length) {
+            const path = paths.shift();
+
+            if (path) {
+                while (RegExp(`^${path}\\.`).test(`${paths[0]}`)) {
+                    paths.shift();
+                }
+
+                data.set(path, undefined);
+            }
         }
 
         this.setData({
             __clone: clone,
-            __data: Object.assign(this.data, DataManager.transform(data)),
-            __config: {
-                color: "yellow",
-            },
+            __data: Object.assign(
+                (Array.isArray(this.data) ? [] : {}),
+                DataManager.transform(this.config?.defaultData),
+                DataManager.transform(add)),
+            __config: {color: "yellow"},
         });
 
         return this;
