@@ -59,27 +59,28 @@ describe("test", () => {
         expect(manager1.getData()).toBe(3);
     });
 
-    it.only("test", () => {
+    it("array", () => {
         const data = new DataManager({
             logging: true,
-            defaultData: {firstName: "jane", lastName: "doe"},
-            data: {
-                id: 123,
-                roles: ["super", "admin"],
-                address: {
-                    address1: "123 Main St",
-                    address2: "Apt 1",
-                    coords: {
-                        lat: 100,
-                        lng: 200,
-                    },
-                }
-            },
+            data: [{name: "one"}, {name: 'two'}, {name: 'three'}],
         });
 
-        data.replaceData({roles: ["sales", "tech"]}, ["roles"]);
+        data.replaceData([{name: "ten"}])
 
-        console.log(data.getData());
+        console.log(data.getData(), data.getData().length)
+    });
+
+    it("object", () => {
+        const data = new DataManager({
+            logging: true,
+            data: {0: 2},
+        });
+
+        data.setData(5)
+
+        data.replaceData()
+
+        console.log(data.getData())
     });
 });
 

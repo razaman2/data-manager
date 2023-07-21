@@ -97,13 +97,16 @@ export default class DataManager {
             // only set the current path if it doesn't match a upcoming similar path.
             // eg. don't set user if the paths contain user.something.
             if (!paths.find((item) => RegExp(`^${path}\\.`).test(item))) {
-                output.set(path, input.get(path));
+                const data = input.get(path);
+
+                // console.log("set data:", path, data);
+                output.set(path, data);
             }
 
-            this.config?.notifications?.emit(`localWrite.${path}`, input.get(path), before.get(path));
+            this.config?.notifications?.emit(`localWrite.${path}`, input.get(path), before.get(path), this);
         });
 
-        this.config?.notifications?.emit("localWrite", input.get(), before.get());
+        this.config?.notifications?.emit("localWrite", input.get(), before.get(), this);
 
         if (this.config?.logging) {
             console.log(`%cSet ${this.config.name ?? this.constructor.name} Data:`, `color: ${params[0].__config?.color ?? "orange"}`, {
@@ -121,15 +124,19 @@ export default class DataManager {
         const paths = remove ?? data.paths();
         const clone = data.clone();
 
-        while (paths.length) {
-            const path = paths.shift();
+        if (Array.isArray(this.data)) {
+            this.data.length = 0;
+        } else {
+            while (paths.length) {
+                const path = paths.shift();
 
-            if (path) {
-                while (RegExp(`^${path}\\.`).test(`${paths[0]}`)) {
-                    paths.shift();
+                if (path || (path === "")) {
+                    while (RegExp(`^${path}\\.`).test(`${paths[0]}`)) {
+                        paths.shift();
+                    }
+
+                    data.set(path, undefined);
                 }
-
-                data.set(path, undefined);
             }
         }
 
