@@ -1,6 +1,5 @@
 import {describe, it, expect} from "vitest";
-import DataManager from "../../dist";
-import ObjectManager from "@razaman2/object-manager";
+import DataManager from "../../src/index";
 
 describe("test", () => {
     it("one", () => {
@@ -239,18 +238,21 @@ describe("object-manager", () => {
             expect.assertions(2);
         });
 
-        // it("should reset primitive", () => {
-        //     const data = new DataManager({
-        //         // defaultData: {'': true},
-        //         data: {'': false},
-        //     });
-        //
-        //     data.replaceData();
-        //
-        //     console.log("log2:", data.getData());
-        //
-        //     // expect(data.getData()).toBeUndefined();
-        // });
+        it("should reset primitive", () => {
+            const tests = [0, 1, true, false, "", "string", null, undefined];
+
+            tests.forEach((test) => {
+                const data = new DataManager({
+                    data: {"": test},
+                });
+
+                expect(data.getData()).toBe(test);
+
+                data.replaceData();
+
+                expect(data.getData()).toEqual({});
+            });
+        });
     });
 
     describe("set data", () => {

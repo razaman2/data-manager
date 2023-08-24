@@ -1,6 +1,6 @@
 import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
-import {version} from "../package.json";
+import {name, version} from "../package.json";
 
 type GetOptions = {
     path?: string | number;
@@ -10,11 +10,11 @@ type GetOptions = {
 export default class DataManager {
     protected paths: Record<string, any> = {};
     protected ignored: {keys: Array<string>} = {keys: []};
-    protected version: {[key: string]: string} = {"data-manager": version};
+    protected build: {[key: string]: string} = {[name]: version};
 
     get data() {
-        // return DataManager.transform(this.config?.data ?? {});
-        return DataManager.transform(this.config?.data ?? this.config?.defaultData);
+        return DataManager.transform(this.config?.data ?? {});
+        // return DataManager.transform(this.config?.data ?? this.config?.defaultData);
     }
 
     public static transform(input: any) {
@@ -39,6 +39,8 @@ export default class DataManager {
         const defaultData = DataManager.transform(this.config?.defaultData);
         const defaultType = (Array.isArray(this.transformed(this.data)) ? [] : {});
 
+        console.log("default data:", defaultData);
+
         this.setData(Object.assign(defaultType, defaultData, this.data));
     }
 
@@ -49,6 +51,10 @@ export default class DataManager {
         );
     }
 
+    public getIgnoredPaths() {
+
+    }
+
     public getData(): any
     public getData(path: string | number): any
     public getData(path: string | number, alternative?: any): any
@@ -56,7 +62,9 @@ export default class DataManager {
     public getData(param1?: string | number | GetOptions, param2?: any) {
         const manager = ObjectManager.on(this.data);
 
-        if (typeof param1 === "object") {
+        if (arguments.length === 0) {
+            return manager.get();
+        } else if (typeof param1 === "object") {
             return manager.get({path: param1.path, alternative: param1.alternative});
         } else {
             return manager.get(param1 as string | number, param2);
@@ -102,7 +110,6 @@ export default class DataManager {
             if (!paths.find((item) => RegExp(`^${path}\\.`).test(item))) {
                 const data = input.get(path);
 
-                // console.log("set data:", path, data);
                 output.set(path, data);
             }
 
