@@ -62,12 +62,12 @@ describe("test", () => {
     it("array", () => {
         const data = new DataManager({
             logging: true,
-            data: [{name: "one"}, {name: 'two'}, {name: 'three'}],
+            data: [{name: "one"}, {name: "two"}, {name: "three"}],
         });
 
-        data.replaceData([{name: "ten"}])
+        data.replaceData([{name: "ten"}]);
 
-        console.log(data.getData(), data.getData().length)
+        console.log(data.getData(), data.getData().length);
     });
 
     it("object", () => {
@@ -76,11 +76,11 @@ describe("test", () => {
             data: {0: 2},
         });
 
-        data.setData(5)
+        data.setData(5);
 
-        data.replaceData()
+        data.replaceData();
 
-        console.log(data.getData())
+        console.log(data.getData());
     });
 });
 
@@ -133,9 +133,7 @@ describe("object-manager", () => {
         });
 
         it("should initialize data as array", () => {
-            expect(new DataManager({
-                data: [],
-            }).getData()).toStrictEqual([]);
+            expect(new DataManager({}).getData()).toStrictEqual([]);
 
             expect(new DataManager({
                 defaultData: [],
@@ -259,14 +257,17 @@ describe("object-manager", () => {
         it("can set data", () => {
             const data = new DataManager({
                 data: {},
-            });
-
-            data.setData({firstName: "jane"});
-            data.setData({
-                address: {
-                    address1: "123 main street",
+                ignoredPaths: () => {
+                    return true;
                 },
             });
+
+            // data.setData({firstName: "jane"});
+            // data.setData({
+            //     address: {
+            //         address1: "123 main street",
+            //     },
+            // });
 
             console.log(data.getData());
         });

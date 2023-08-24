@@ -1,4 +1,4 @@
-import ObjectManager from "../../object-manager";
+import ObjectManager from "@razaman2/object-manager";
 import type DataClient from "./DataClient";
 import {version} from "../package.json";
 
@@ -8,14 +8,13 @@ type GetOptions = {
 }
 
 export default class DataManager {
-    private version = version;
-
-    protected ignored: {
-        keys: Array<string>
-    } = {keys: []};
+    protected paths: Record<string, any> = {};
+    protected ignored: {keys: Array<string>} = {keys: []};
+    protected version: {[key: string]: string} = {"data-manager": version};
 
     get data() {
-        return DataManager.transform(this.config?.data ?? {});
+        // return DataManager.transform(this.config?.data ?? {});
+        return DataManager.transform(this.config?.data ?? this.config?.defaultData);
     }
 
     public static transform(input: any) {
@@ -75,11 +74,15 @@ export default class DataManager {
             paths: {
                 full: true,
                 test: (path) => {
+                    const ignored = this.config?.ignoredPaths?.(path, this.paths);
+
+                    if (typeof ignored === "boolean") {
+                        this.paths[path] = ignored;
+                    }
+
                     return !(
-                        this.config?.ignoredPaths?.(path)
-                        || this.getIgnoredKeys().find((ignored) => {
-                            return RegExp(ignored).test(path);
-                        })
+                        this.paths[path]
+                        || this.getIgnoredKeys().find((ignored) => RegExp(ignored).test(path))
                     );
                 },
             },

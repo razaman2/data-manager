@@ -15,12 +15,12 @@
     "license": "MIT",
     "dependencies": {
         "@razaman2/event-emitter": "^2.0.14",
-        "@razaman2/object-manager": "^3.2.9"
+        "@razaman2/object-manager": "^3.2.11"
     },
     "devDependencies": {
-        "tsup": "^7.1.0",
+        "tsup": "^7.2.0",
         "typescript": "^5.1.6",
-        "vitest": "^0.32.4"
+        "vitest": "^0.34.2"
     },
     "publishConfig": {
         "access": "public"
