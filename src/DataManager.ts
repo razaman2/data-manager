@@ -39,8 +39,6 @@ export default class DataManager {
         const defaultData = DataManager.transform(this.config?.defaultData);
         const defaultType = (Array.isArray(this.transformed(this.data)) ? [] : {});
 
-        console.log("default data:", defaultData);
-
         this.setData(Object.assign(defaultType, defaultData, this.data));
     }
 
@@ -62,9 +60,7 @@ export default class DataManager {
     public getData(param1?: string | number | GetOptions, param2?: any) {
         const manager = ObjectManager.on(this.data);
 
-        if (arguments.length === 0) {
-            return manager.get();
-        } else if (typeof param1 === "object") {
+        if (typeof param1 === "object") {
             return manager.get({path: param1.path, alternative: param1.alternative});
         } else {
             return manager.get(param1 as string | number, param2);

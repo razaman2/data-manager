@@ -85,17 +85,13 @@ describe("Data Manager", () => {
 
     it("should initialize object with data from the data prop", () => {
         const data1 = new DataManager({
-            data: {
-                value: {name: "John Doe"},
-            },
+            data: {name: "John Doe"},
         });
 
         expect(data1.getData()).toEqual({name: "John Doe"});
 
         const data2 = new DataManager({
-            data: {
-                value: {name: "John Doe"},
-            },
+            data: {name: "John Doe"},
         });
 
         expect(data2.getData()).toEqual({name: "John Doe"});
@@ -127,7 +123,7 @@ describe("Data Manager", () => {
         };
 
         const data1 = new DataManager({
-            data: {value: data},
+            data,
             defaultData,
         });
 
@@ -195,9 +191,7 @@ describe("Data Manager", () => {
     it("data passed to replaceData should override default data", () => {
         const data = new DataManager({
             defaultData: {name: "jane doe"},
-            data: {
-                value: {age: 38, weight: 190},
-            },
+            data: {age: 38, weight: 190},
         });
 
         expect(data.getData()).toEqual({
