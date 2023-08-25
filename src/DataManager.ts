@@ -107,8 +107,6 @@ export default class DataManager {
         const output = ObjectManager.on(this.data);
         const before = ObjectManager.on(params[0].__clone ?? output.clone());
 
-        console.log("input paths:", paths);
-
         paths.forEach((path) => {
             // only set the current path if it doesn't match a upcoming similar path.
             // eg. don't set user if the paths contain user.something.
