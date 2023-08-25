@@ -9,6 +9,7 @@ type GetOptions = {
 
 export default class DataManager {
     protected paths: Record<string, any> = {};
+    protected ignorance: Array<RegExp | string> = [];
     protected ignored: {keys: Array<string>} = {keys: []};
     protected build: {[key: string]: string} = {[name]: version};
 
@@ -49,8 +50,13 @@ export default class DataManager {
         );
     }
 
-    public getIgnoredPaths() {
+    public setIgnoredPath(match: RegExp | string): this
+    public setIgnoredPath(matches: Array<RegExp | string>): this
 
+    public setIgnoredPath(param1: RegExp | string | Array<RegExp | string>) {
+        this.ignorance = this.ignorance.concat(Array.isArray(param1) ? param1 : [param1]);
+
+        return this;
     }
 
     public getData(): any
@@ -85,7 +91,8 @@ export default class DataManager {
                     }
 
                     return !(
-                        this.paths[path]
+                        this.ignorance.find((item) => RegExp(item).test(path))
+                        || this.paths[path]
                         || this.getIgnoredKeys().find((ignored) => RegExp(ignored).test(path))
                     );
                 },
@@ -99,6 +106,8 @@ export default class DataManager {
         const paths = input.paths();
         const output = ObjectManager.on(this.data);
         const before = ObjectManager.on(params[0].__clone ?? output.clone());
+
+        console.log("input paths:", paths);
 
         paths.forEach((path) => {
             // only set the current path if it doesn't match a upcoming similar path.

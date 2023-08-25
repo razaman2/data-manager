@@ -273,5 +273,32 @@ describe("object-manager", () => {
 
             console.log(data.getData());
         });
+
+        it("should ignore path", () => {
+            const manager = new DataManager().setIgnoredPath("coords.lat");
+
+            manager.setData({
+                user: {
+                    firstName: "john",
+                    lastName: "doe",
+                    roles: ["admin", "user"],
+                    address: {
+                        address1: "123 main street",
+                        address2: "apt 1",
+                        city: "new york",
+                        state: "ny",
+                        zip: "12345",
+                        county: "middlesex",
+                        country: "usa",
+                        coords: {
+                            lat: 123,
+                            lng: 456,
+                        },
+                    },
+                },
+            });
+
+            console.log(manager.getData());
+        });
     });
 });
