@@ -64,12 +64,12 @@ export default class DataManager {
     public getData(path: string | number, alternative?: any): any
     public getData(options: GetOptions): any
     public getData(param1?: string | number | GetOptions, param2?: any) {
-        const manager = ObjectManager.on(this.data);
+        const object = ObjectManager.on(this.data);
 
         if (typeof param1 === "object") {
-            return manager.get({path: param1.path, alternative: param1.alternative});
+            return object.get({path: param1.path, alternative: param1.alternative});
         } else {
-            return manager.get(param1 as string | number, param2);
+            return object.get(param1 as string | number, param2);
         }
     }
 
@@ -100,7 +100,7 @@ export default class DataManager {
         });
 
         if (data === undefined) {
-            input.set(params[0].__data ?? params[0], params[1]);
+            input.set((params[0].__data ?? params[0]), params[1]);
         }
 
         const paths = input.paths();

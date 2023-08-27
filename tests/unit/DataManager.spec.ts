@@ -1,13 +1,10 @@
 import {describe, it, expect} from "vitest";
 import EventEmitter from "@razaman2/event-emitter";
-import ObjectManager from "@razaman2/object-manager";
 import DataManager from "../../src/index";
 
 describe("Data Manager", () => {
     it("should replace array prop data with new value", () => {
-        const data = new DataManager({
-            ignoredKeys: (keys: Array<string>) => keys.concat("^roles."),
-        });
+        const data = new DataManager().setIgnoredPath(/^roles\./);
 
         data.setData({roles: ["super", "supervisor"]});
         expect(data.getData()).toEqual({roles: ["super", "supervisor"]});
@@ -17,9 +14,7 @@ describe("Data Manager", () => {
     });
 
     it("should replace array prop data at root", () => {
-        const data = new DataManager({
-            ignoredKeys: (keys) => keys.concat("^\\d"),
-        });
+        const data = new DataManager().setIgnoredPath(/^\d+\./);
 
         data.setData(["super", "supervisor"]);
         expect(data.getData()).toEqual(["super", "supervisor"]);
@@ -45,11 +40,7 @@ describe("Data Manager", () => {
     });
 
     it("should manage items", () => {
-        const data = new DataManager({
-            // getIgnoredKeys(keys: Array<string>) {
-            //     return keys.concat(['roles']);
-            // }
-        });
+        const data = new DataManager().setIgnoredPath("roles");
 
         // data.setData({
         //     createdAt: {
@@ -284,10 +275,9 @@ describe("Data Manager", () => {
     it("test setting data", () => {
         const notifications = new EventEmitter();
 
-        const manager = new DataManager({
-            ignoredKeys: (keys) => keys.concat("video", ".+?\.roles", "belongsTo"),
+        const data = new DataManager({
             notifications,
-        });
+        }).setIgnoredPath([/^video\./, /.+?\.roles/, /^belongsTo\./]);
 
         notifications.on("localWrite", (data: object) => {
             console.log("localWrite:", data);
@@ -301,7 +291,7 @@ describe("Data Manager", () => {
             console.log("localWrite.video:", video);
         });
 
-        manager.setData({
+        data.setData({
             "belongsTo": [
                 "kwI5G2sj3dDRlOtmBLKs purchases",
                 "h9be5UnwdeH9iAmRHydW tickets",

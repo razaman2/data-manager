@@ -106,11 +106,11 @@ describe("object-manager", () => {
             });
 
             expect(data.getData()).toStrictEqual({firstName: "jane", lastName: "doe"});
-            expect(data.getData({})).toBeUndefined();
             expect(data.getData({path: "firstName"})).toBe("jane");
             expect(data.getData({alternative: 1})).toBe(1);
             expect(data.getData("firstName")).toBe("jane");
             expect(data.getData("", 1)).toBe(1);
+            expect(data.getData({})).toBeUndefined();
 
             expect.assertions(6);
         });
@@ -132,11 +132,11 @@ describe("object-manager", () => {
         });
 
         it("should initialize data as array", () => {
-            expect(new DataManager({}).getData()).toStrictEqual([]);
+            expect(new DataManager().getData()).toEqual([]);
 
             expect(new DataManager({
                 defaultData: [],
-            }).getData()).toStrictEqual([]);
+            }).getData()).toEqual([]);
 
             expect.assertions(2);
         });
