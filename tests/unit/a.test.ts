@@ -3,23 +3,23 @@ import DataManager from "../../src/index";
 
 describe("test", () => {
     it("one", () => {
-        const data = {firstName: "j"};
-        const defaultData = {firstName: "a", lastName: "b"};
+        const test1 = {firstName: "j"};
+        const test2 = {firstName: "a", lastName: "b"};
 
-        const manager = new DataManager({
-            data,
-            defaultData,
+        const object = new DataManager({
+            data: test1,
+            defaultData: test2,
         });
 
-        expect(manager.getData()).toEqual({firstName: "j", lastName: "b"});
+        expect(object.getData()).toEqual({firstName: "j", lastName: "b"});
 
-        manager.replaceData();
+        object.replaceData();
 
-        expect(manager.getData()).toEqual({firstName: "a", lastName: "b"});
+        expect(object.getData()).toEqual({firstName: "a", lastName: "b"});
 
-        manager.replaceData({middleName: "c"});
+        object.replaceData({middleName: "c"});
 
-        expect(manager.getData()).toEqual({firstName: "a", lastName: "b", middleName: "c"});
+        expect(object.getData()).toEqual({firstName: "a", lastName: "b", middleName: "c"});
     });
 
     it("two", () => {
@@ -81,6 +81,56 @@ describe("test", () => {
 
         console.log(data.getData());
     });
+
+    it("set as string", () => {
+        expect(new DataManager().setData("one", 1).getData()).toEqual({one: 1});
+
+        expect(new DataManager({
+            data: {},
+        }).setData("one", 1).getData()).toEqual({one: 1});
+
+        expect(new DataManager({
+            defaultData: {},
+        }).setData("one", 1).getData()).toEqual({one: 1});
+
+        expect(new DataManager().setData("one.two", 3).getData()).toEqual({one: {two: 3}});
+
+        expect(new DataManager({
+            data: {},
+        }).setData("one.two", 3).getData()).toEqual({one: {two: 3}});
+
+        expect(new DataManager({
+            defaultData: {},
+        }).setData("one.two", 3).getData()).toEqual({one: {two: 3}});
+
+        expect.assertions(6);
+    });
+
+    it("should set object", () => {
+        expect(new DataManager().setData({one: 1, two: 2}).getData()).toEqual({one: 1, two: 2});
+
+        expect(new DataManager({
+            data: {},
+        }).setData({one: 1, two: 2}).getData()).toEqual({one: 1, two: 2});
+
+        expect(new DataManager({
+            defaultData: {},
+        }).setData({one: 1, two: 2}).getData()).toEqual({one: 1, two: 2});
+
+        expect.assertions(3);
+    });
+
+    it("should set array", () => {
+        expect(new DataManager({
+            data: [],
+        }).setData(["one", "two"]).getData()).toEqual(["one", "two"]);
+
+        expect(new DataManager({
+            defaultData: [],
+        }).setData(["one", "two"]).getData()).toEqual(["one", "two"]);
+
+        expect.assertions(2);
+    });
 });
 
 describe("object-manager", () => {
@@ -90,8 +140,8 @@ describe("object-manager", () => {
                 data: 0,
             });
 
-            expect(data.getData()).toBe(0);
             expect(new DataManager().getData({})).toBeUndefined();
+            expect(data.getData()).toBe(0);
             expect(data.getData({path: ""})).toBe(0);
             expect(new DataManager().getData({alternative: 1})).toBe(1);
             expect(data.getData("")).toBe(0);
@@ -105,12 +155,12 @@ describe("object-manager", () => {
                 data: {firstName: "jane", lastName: "doe"},
             });
 
-            expect(data.getData()).toStrictEqual({firstName: "jane", lastName: "doe"});
+            expect(data.getData({})).toBeUndefined();
+            expect(data.getData()).toEqual({firstName: "jane", lastName: "doe"});
             expect(data.getData({path: "firstName"})).toBe("jane");
             expect(data.getData({alternative: 1})).toBe(1);
             expect(data.getData("firstName")).toBe("jane");
             expect(data.getData("", 1)).toBe(1);
-            expect(data.getData({})).toBeUndefined();
 
             expect.assertions(6);
         });
@@ -132,7 +182,9 @@ describe("object-manager", () => {
         });
 
         it("should initialize data as array", () => {
-            expect(new DataManager().getData()).toEqual([]);
+            expect(new DataManager({
+                data: [],
+            }).getData()).toEqual([]);
 
             expect(new DataManager({
                 defaultData: [],

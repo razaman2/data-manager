@@ -1,17 +1,16 @@
 import {describe, it, expect} from "vitest";
 import DataManager from "../../src/index";
-import ObjectManager from "../../../object-manager/src/index";
 
 describe("set data on data manager", () => {
     it("should initialize with empty object", () => {
-        const manager1 = new DataManager();
+        const data1 = new DataManager();
 
-        const manager2 = new DataManager({
+        const data2 = new DataManager({
             data: {},
         });
 
-        expect(manager1.getData()).toEqual({});
-        expect(manager2.getData()).toEqual({});
+        expect(data1.getData()).toEqual({});
+        expect(data2.getData()).toEqual({});
 
         expect.assertions(2);
     });
@@ -30,13 +29,20 @@ describe("set data on data manager", () => {
         const primitives = [0, 1, true, false, "", " ", null, undefined];
 
         primitives.forEach((primitive) => {
-            const data = new DataManager({
+            const data1 = new DataManager({
                 data: primitive,
             });
 
-            expect(data.getData()).toBe(primitive);
+            const data2 = new DataManager({
+                defaultData: primitive,
+            });
+
+            console.log("my data:", {data1, data2});
+
+            expect(data1.getData()).toBe(primitive);
+            expect(data2.getData()).toBe(primitive);
         });
 
-        expect.assertions(primitives.length);
+        expect.assertions(primitives.length * 2);
     });
 });

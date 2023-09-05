@@ -11,10 +11,14 @@ describe("Data Manager", () => {
 
         data.setData({roles: ["admin"]});
         expect(data.getData("roles")).toEqual(["admin"]);
+
+        expect.assertions(2);
     });
 
     it("should replace array prop data at root", () => {
-        const data = new DataManager().setIgnoredPath(/^\d+\./);
+        const data = new DataManager({
+            data: [],
+        }).setIgnoredPath(/^\d+\./);
 
         data.setData(["super", "supervisor"]);
         expect(data.getData()).toEqual(["super", "supervisor"]);
@@ -46,9 +50,7 @@ describe("Data Manager", () => {
         //     createdAt: {
         //         minutes: 1,
         //         seconds: 2,
-        //         toDate() {
-        //
-        //         }
+        //         toDate() {}
         //     }
         // });
 
@@ -58,16 +60,14 @@ describe("Data Manager", () => {
                     createdAt: {
                         minutes: 1,
                         seconds: 2,
-                        toDate: () => {
-                        },
+                        toDate: () => {},
                     },
                 },
                 {
                     createdAt: {
                         minutes: 1,
                         seconds: 2,
-                        toDate: () => {
-                        },
+                        toDate: () => {},
                     },
                 },
             ],
@@ -212,6 +212,8 @@ describe("Data Manager", () => {
         data.setData("address.coords.lng", 456);
         data.setData("user.role.0", "super");
         data.setData("user.role.1", "supervisor");
+
+        console.log("log me:", data.getData());
 
         expect(data.getData()).toEqual({
             user: {
@@ -714,13 +716,11 @@ describe("Data Manager", () => {
     it("should broadcast events", () => {
         const notifications = new EventEmitter();
 
-        const manager = new DataManager({
+        const data = new DataManager({
             notifications,
         });
 
-        expect.assertions(14);
-
-        const obj: any = {
+        const object: any = {
             user: {
                 firstName: "John",
                 lastName: "Doe",
@@ -736,62 +736,64 @@ describe("Data Manager", () => {
         };
 
         notifications.on("localWrite.user", (after: any) => {
-            expect(after).toEqual(obj.user);
+            expect(after).toEqual(object.user);
         });
 
         notifications.on("localWrite.user.firstName", (after: any) => {
-            expect(after).toEqual(obj.user.firstName);
+            expect(after).toEqual(object.user.firstName);
         });
 
         notifications.on("localWrite.user.lastName", (after: any) => {
-            expect(after).toEqual(obj.user.lastName);
+            expect(after).toEqual(object.user.lastName);
         });
 
         notifications.on("localWrite.user.roles", (after: any) => {
-            expect(after).toEqual(obj.user.roles);
+            expect(after).toEqual(object.user.roles);
         });
 
         notifications.on("localWrite.user.roles.0", (after: any) => {
-            expect(after).toEqual(obj.user.roles[0]);
+            expect(after).toEqual(object.user.roles[0]);
         });
 
         notifications.on("localWrite.user.roles.1", (after: any) => {
-            expect(after).toEqual(obj.user.roles[1]);
+            expect(after).toEqual(object.user.roles[1]);
         });
 
         notifications.on("localWrite.user.roles.2", (after: any) => {
-            expect(after).toEqual(obj.user.roles[2]);
+            expect(after).toEqual(object.user.roles[2]);
         });
 
         notifications.on("localWrite.user.children", (after: any) => {
-            expect(after).toEqual(obj.user.children);
+            expect(after).toEqual(object.user.children);
         });
 
         notifications.on("localWrite.user.children.0", (after: any) => {
-            expect(after).toEqual(obj.user.children[0]);
+            expect(after).toEqual(object.user.children[0]);
         });
 
         notifications.on("localWrite.user.children.0.firstName", (after: any) => {
-            expect(after).toEqual(obj.user.children[0].firstName);
+            expect(after).toEqual(object.user.children[0].firstName);
         });
 
         notifications.on("localWrite.user.children.0.lastName", (after: any) => {
-            expect(after).toEqual(obj.user.children[0].lastName);
+            expect(after).toEqual(object.user.children[0].lastName);
         });
 
         notifications.on("localWrite.user.children.0.roles", (after: any) => {
-            expect(after).toEqual(obj.user.children[0].roles);
+            expect(after).toEqual(object.user.children[0].roles);
         });
 
         notifications.on("localWrite.user.children.0.roles.0", (after: any) => {
-            expect(after).toEqual(obj.user.children[0].roles[0]);
+            expect(after).toEqual(object.user.children[0].roles[0]);
         });
 
         notifications.on("localWrite", (after: any) => {
-            expect(after).toEqual(obj);
+            expect(after).toEqual(object);
         });
 
-        manager.setData(obj);
+        data.setData(object);
+
+        expect.assertions(14);
     });
 
     it("should broadcast with data before and after", () => {
