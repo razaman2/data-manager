@@ -6,8 +6,8 @@ import {name, version} from "../package.json";
 export default class DataManager {
     private readonly data;
     private readonly defaultData;
-    private readonly build = {[name]: version};
-    private ignored: Array<RegExp | string> = [];
+    protected build = {[name]: version};
+    protected ignored: Array<RegExp | string> = [];
 
     get defaultType() {
         return Array.isArray(this.data) ? [] : {};
