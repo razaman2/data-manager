@@ -15,7 +15,7 @@
     "license": "MIT",
     "dependencies": {
         "@razaman2/event-emitter": "^2.0.14",
-        "@razaman2/object-manager": "^3.3.0"
+        "@razaman2/object-manager": "^3.3.1"
     },
     "devDependencies": {
         "tsup": "^7.2.0",
