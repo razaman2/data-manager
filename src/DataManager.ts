@@ -37,6 +37,17 @@ export default class DataManager {
         this.setData(Object.assign(this.defaultType, this.defaultData, this.data));
     }
 
+    protected getObjectManager(data: any) {
+        return ObjectManager.on(data, {
+            paths: {
+                full: true,
+                test: (path: string) => {
+                    return !this.ignored.find((item) => RegExp(item).test(path));
+                },
+            },
+        });
+    }
+
     public setIgnoredPath(match: RegExp | string): this
     public setIgnoredPath(matches: Array<RegExp | string>): this
     public setIgnoredPath(param1: RegExp | string | Array<RegExp | string>) {
@@ -50,7 +61,7 @@ export default class DataManager {
     public getData(path: string | number, alternative?: any): any
     public getData(options: ReadOptions): any
     public getData(...params: [(string | number | ReadOptions)?, any?]) {
-        return ObjectManager.on(this.data).get(...params as []);
+        return this.getObjectManager(this.data).get(...params as []);
     }
 
     public setData(value: any): this
@@ -60,22 +71,15 @@ export default class DataManager {
             ? DataManager.transform(params[0].__data ?? params[0])
             : undefined;
 
-        const input = ObjectManager.on((arguments.length === 1) ? data : {}, {
-            paths: {
-                full: true,
-                test: (path) => {
-                    return !this.ignored.find((item) => RegExp(item).test(path));
-                },
-            },
-        });
+        const input = this.getObjectManager({}).copy((arguments.length === 1) ? data : {});
 
         if (data === undefined) {
             input.set((params[0].__data ?? params[0]), params[1]);
         }
 
         const paths = input.paths();
-        const output = ObjectManager.on(this.data);
-        const before = ObjectManager.on(params[0].__clone ?? output.clone());
+        const output = this.getObjectManager(this.data);
+        const before = this.getObjectManager(params[0].__clone ?? output.clone());
 
         paths.forEach((path) => {
             // only set the current path if it doesn't match a upcoming similar path.
@@ -103,7 +107,7 @@ export default class DataManager {
     }
 
     public replaceData(add?: any, remove?: Array<string>) {
-        const data = ObjectManager.on(this.data, {paths: {full: true}});
+        const data = this.getObjectManager(this.data);
         const paths = remove ?? data.paths();
         const clone = data.clone();
 

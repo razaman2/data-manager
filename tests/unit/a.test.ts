@@ -352,5 +352,13 @@ describe("object-manager", () => {
 
             console.log(manager.getData());
         });
+
+        // it.only("test", () => {
+        //     const data = new DataManager().setData({name: "john doe"});
+        //
+        //     data.setData(undefined)
+        //
+        //     console.log(data)
+        // });
     });
 });
