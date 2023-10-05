@@ -1,5 +1,6 @@
 import {describe, it, expect} from "vitest";
 import EventEmitter from "@razaman2/event-emitter";
+import ObjectManager from "@razaman2/object-manager";
 import DataManager from "../../src/index";
 
 describe("Data Manager", () => {
@@ -18,15 +19,15 @@ describe("Data Manager", () => {
     it("should replace array prop data at root", () => {
         const data = new DataManager({
             data: [],
-        }).setIgnoredPath(/^\d+\./);
+        });
 
-        data.setData(["super", "supervisor"]);
+        data.replaceData(["super", "supervisor"]);
         expect(data.getData()).toEqual(["super", "supervisor"]);
 
-        data.setData(["admin"]);
+        data.replaceData(["admin"]);
         expect(data.getData()).toEqual(["admin"]);
 
-        data.setData(["a", "b", "c"]);
+        data.replaceData(["a", "b", "c"]);
         expect(data.getData()).toEqual(["a", "b", "c"]);
     });
 
@@ -896,5 +897,28 @@ describe("Data Manager", () => {
         const data = new DataManager();
 
         expect(data.getData({alternative: 100})).toBe(100);
+    });
+
+    it("should handle circular dependency", () => {
+        const address = {
+            street1: "123 main st",
+            street2: "apt 1",
+            city: "old bridge",
+            state: "nj",
+            user: {},
+        };
+
+        const user = {
+            firstName: "jane",
+            lastName: "doe",
+            address,
+        };
+
+        address.user = user;
+
+        new DataManager({data: user});
+        new DataManager({defaultData: user});
+        new DataManager().setData(user);
+        new DataManager().replaceData(user);
     });
 });
