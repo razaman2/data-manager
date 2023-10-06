@@ -6,8 +6,8 @@ import {name, version} from "../package.json";
 export default class DataManager {
     private readonly data;
     private readonly defaultData;
-    protected build = {[name]: version};
     protected ignored: Array<RegExp | string | ((path: string) => boolean)> = [];
+    protected build = {[name]: version};
 
     get defaultType() {
         return Array.isArray(this.data) ? [] : {};
@@ -126,7 +126,7 @@ export default class DataManager {
             __data: Object.assign(
                 this.defaultType,
                 this.defaultData,
-                arguments.length ? DataManager.transform(add) : {}),
+                arguments.length ? DataManager.transform(add ?? this.data) : {}),
             __config: {color: "yellow"},
         });
 
