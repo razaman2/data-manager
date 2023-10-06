@@ -7,7 +7,7 @@ export default class DataManager {
     private readonly data;
     private readonly defaultData;
     protected build = {[name]: version};
-    protected ignored: Array<RegExp | string> = [];
+    protected ignored: Array<RegExp | string | ((path: string) => boolean)> = [];
 
     get defaultType() {
         return Array.isArray(this.data) ? [] : {};
@@ -42,15 +42,19 @@ export default class DataManager {
             paths: {
                 full: true,
                 test: (path: string) => {
-                    return !this.ignored.find((item) => RegExp(item).test(path));
+                    return !this.ignored.find((item) => {
+                        return (typeof item === "function")
+                            ? item(path)
+                            : RegExp(item).test(path);
+                    });
                 },
             },
         });
     }
 
-    public setIgnoredPath(match: RegExp | string): this
-    public setIgnoredPath(matches: Array<RegExp | string>): this
-    public setIgnoredPath(param1: RegExp | string | Array<RegExp | string>) {
+    public setIgnoredPath(match: string | RegExp | ((path: string) => boolean)): this
+    public setIgnoredPath(matches: Array<string | RegExp | ((path: string) => boolean)>): this
+    public setIgnoredPath(param1: string | RegExp | ((path: string) => boolean) | Array<string | RegExp | ((path: string) => boolean)>) {
         this.ignored = this.ignored.concat(Array.isArray(param1) ? param1 : [param1]);
 
         return this;
