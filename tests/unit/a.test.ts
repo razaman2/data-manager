@@ -164,6 +164,15 @@ describe("object-manager", () => {
 
             expect.assertions(6);
         });
+
+        it("test", () => {
+            const data = new DataManager();
+
+            // data.setData({attached: []})
+            data.setData({})
+
+            console.log('output', data.getData())
+        });
     });
 
     describe("initialize", () => {

@@ -126,7 +126,7 @@ export default class DataManager {
             __data: Object.assign(
                 this.defaultType,
                 this.defaultData,
-                arguments.length ? DataManager.transform(add ?? this.data) : {}),
+                arguments.length ? DataManager.transform(add) : {}),
             __config: {color: "yellow"},
         });
 
