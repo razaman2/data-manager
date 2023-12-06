@@ -166,10 +166,9 @@ describe("object-manager", () => {
         });
 
         it("test", () => {
-            const data = new DataManager();
+            const data = new DataManager({data: ["one", "two"]});
 
-            // data.setData({attached: []})
-            data.setData({})
+            data.replaceData()
 
             console.log('output', data.getData())
         });

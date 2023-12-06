@@ -114,7 +114,11 @@ export default class DataManager {
         const data = this.getObjectManager(this.data);
         const clone = data.clone();
 
-        data.unset(remove ?? data.paths());
+        if (Array.isArray(this.data)) {
+            data.unset(["${all}"]);
+        } else {
+            data.unset(remove ?? data.paths());
+        }
 
         this.setData({
             __clone: clone,

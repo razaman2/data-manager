@@ -14,8 +14,8 @@
     "author": "razaman2",
     "license": "MIT",
     "peerDependencies": {
-        "@razaman2/event-emitter": "^2.0.14",
-        "@razaman2/object-manager": "^3.3.5"
+        "@razaman2/event-emitter": "2.0.14",
+        "@razaman2/object-manager": "3.3.5"
     },
     "devDependencies": {
         "tsup": "^7.2.0",
