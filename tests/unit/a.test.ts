@@ -1,5 +1,5 @@
 import {describe, it, expect} from "vitest";
-import DataManager from "../../src/index";
+import DataManager from "../../src";
 
 describe("test", () => {
     it("one", () => {

@@ -1,7 +1,6 @@
 import {describe, it, expect} from "vitest";
 import EventEmitter from "@razaman2/event-emitter";
-import ObjectManager from "@razaman2/object-manager";
-import DataManager from "../../src/index";
+import DataManager from "../../src";
 
 describe("Data Manager", () => {
     it("should replace array prop data with new value", () => {

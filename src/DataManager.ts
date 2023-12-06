@@ -112,14 +112,9 @@ export default class DataManager {
 
     public replaceData(add?: any, remove?: Array<string>) {
         const data = this.getObjectManager(this.data);
-        const paths = remove ?? data.paths();
         const clone = data.clone();
 
-        if (Array.isArray(this.data)) {
-            this.data.length = 0;
-        } else {
-            data.unset(paths);
-        }
+        data.unset(remove ?? data.paths());
 
         this.setData({
             __clone: clone,
