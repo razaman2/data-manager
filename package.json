@@ -14,13 +14,13 @@
     "author": "razaman2",
     "license": "MIT",
     "peerDependencies": {
-        "@razaman2/event-emitter": "2.0.14",
-        "@razaman2/object-manager": "3.3.5"
+        "@razaman2/event-emitter": "^2.0.14",
+        "@razaman2/object-manager": "3.3.6"
     },
     "devDependencies": {
-        "tsup": "^7.2.0",
-        "typescript": "^5.3.2",
-        "vitest": "^0.34.6"
+        "tsup": "^8.0.1",
+        "typescript": "^5.3.3",
+        "vitest": "^1.0.3"
     },
     "publishConfig": {
         "access": "public"

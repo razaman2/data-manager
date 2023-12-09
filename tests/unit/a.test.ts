@@ -166,9 +166,9 @@ describe("object-manager", () => {
         });
 
         it("test", () => {
-            const data = new DataManager({data: ["one", "two"]});
+            const data = new DataManager({data: ["one", "two", "three", "four", "five"]});
 
-            data.replaceData()
+            data.replaceData([])
 
             console.log('output', data.getData())
         });
