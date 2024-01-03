@@ -85,13 +85,15 @@ export default class DataManager {
         const output = this.getObjectManager(this.data);
         const before = this.getObjectManager(params[0].__clone ?? output.clone());
 
-        paths.forEach((path) => {
+        paths.forEach((path, index) => {
             // only set the current path if it doesn't match a upcoming similar path.
             // eg. don't set user if the paths contain user.something.
-            if (!paths.find((item) => RegExp(`^${path}\\.`).test(item))) {
-                const data = input.get(path);
+            const data = input.get(path);
 
+            if (!RegExp(`^${path}\\.`).test(`${paths[index + 1]}`)) {
                 output.set(path, data);
+            } else if (!output.get(path)) {
+                output.set(path, Array.isArray(data) ? [] : {});
             }
 
             this.config.notifications?.emit(`localWrite.${path}`, input.get(path), before.get(path), this);

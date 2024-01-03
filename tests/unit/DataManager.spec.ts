@@ -206,12 +206,12 @@ describe("Data Manager", () => {
         data.setData("user.lastName", "Doe");
         data.setData("user.weight", 240);
         data.setData("user.age", 29);
+        data.setData("user.role.0", "super");
+        data.setData("user.role.1", "supervisor");
         data.setData("address.address1", "123 Main Street");
         data.setData("address.address2", "Apt 1");
         data.setData("address.coords.lat", 123);
         data.setData("address.coords.lng", 456);
-        data.setData("user.role.0", "super");
-        data.setData("user.role.1", "supervisor");
 
         console.log("log me:", data.getData());
 
